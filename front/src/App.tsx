@@ -4,6 +4,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import GameOverlay from './components/GameOverlay';
 import AIOverlay from './components/AIOverlay';
+import GlitchEffect from './components/GlitchEffect';
 import Home from './pages/Home';
 import About from './pages/About';
 import Portfolio from './pages/Portfolio';
@@ -11,6 +12,7 @@ import './App.css';
 
 function App() {
   const [isGameActive, setIsGameActive] = useState(false);
+  const [glitchIntensity, setGlitchIntensity] = useState(0);
 
   const handleGameToggle = () => {
     setIsGameActive(!isGameActive);
@@ -29,7 +31,8 @@ function App() {
         </main>
         <Footer onGameToggle={handleGameToggle} />
         <GameOverlay isActive={isGameActive} onClose={() => setIsGameActive(false)} />
-        <AIOverlay isGameActive={isGameActive} />
+        <AIOverlay isGameActive={isGameActive} onGlitchIntensityChange={setGlitchIntensity} />
+        <GlitchEffect intensity={glitchIntensity} />
       </div>
     </BrowserRouter>
   );
