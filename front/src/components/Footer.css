@@ -63,4 +63,8 @@
     flex-direction: column;
     text-align: center;
   }
+
+  .game-toggle-btn {
+    display: none;
+  }
 }
