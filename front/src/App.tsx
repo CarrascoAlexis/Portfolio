@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import GameOverlay from './components/GameOverlay';
+import AIOverlay from './components/AIOverlay';
 import Home from './pages/Home';
 import About from './pages/About';
 import Portfolio from './pages/Portfolio';
@@ -28,6 +29,7 @@ function App() {
         </main>
         <Footer onGameToggle={handleGameToggle} />
         <GameOverlay isActive={isGameActive} onClose={() => setIsGameActive(false)} />
+        <AIOverlay isGameActive={isGameActive} />
       </div>
     </BrowserRouter>
   );
