@@ -24,6 +24,7 @@
 .footer-links {
   display: flex;
   gap: var(--spacing-md);
+  align-items: center;
 }
 
 .footer-links a {
@@ -36,6 +37,25 @@
 
 .footer-links a:hover {
   color: var(--accent-primary);
+}
+
+.game-toggle-btn {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 2px solid var(--line-color);
+  padding: 0.5rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.game-toggle-btn:hover {
+  background: var(--line-color);
+  color: var(--bg-primary);
+  transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {
