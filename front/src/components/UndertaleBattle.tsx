@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import './UndertaleBattle.css';
 
 interface UndertaleBattleProps {
-  onBattleComplete: () => void;
+  onBattleComplete: (outcome: 'defeated' | 'spared') => void;
 }
 
 type AttackPattern = 'bones' | 'cross' | 'circle' | 'slam';
@@ -69,18 +69,41 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
   const generateBones = useCallback(() => {
     const bones: Attack[] = [];
     const numBones = 8 + Math.floor(Math.random() * 4);
+    const baseId = Date.now();
     
     for (let i = 0; i < numBones; i++) {
       const fromSide = Math.random() > 0.5;
+      let x, y, vx, vy;
+      
+      if (fromSide) {
+        // Horizontal bones (coming from left or right)
+        const fromLeft = Math.random() > 0.5;
+        x = fromLeft ? -15 : 115;
+        y = Math.random() * 100;
+        vx = fromLeft ? 1.5 : -1.5;
+        vy = (Math.random() - 0.5) * 0.5;
+      } else {
+        // Vertical bones (coming from top or bottom)
+        const fromTop = Math.random() > 0.5;
+        x = Math.random() * 100;
+        y = fromTop ? -15 : 115;
+        vx = (Math.random() - 0.5) * 0.5;
+        vy = fromTop ? 1.5 : -1.5;
+      }
+      
+      // Calculate rotation from velocity vector (atan2 gives angle in radians, convert to degrees)
+      // Add 90 because bone sprite points upward by default (0° = up, 90° = right, etc.)
+      const rotation = (Math.atan2(vx, -vy) * 180 / Math.PI);
+      
       bones.push({
-        id: Date.now() + i,
-        x: fromSide ? (Math.random() > 0.5 ? -15 : 115) : Math.random() * 100,
-        y: fromSide ? Math.random() * 100 : (Math.random() > 0.5 ? -15 : 115),
-        vx: fromSide ? (Math.random() > 0.5 ? 1.5 : -1.5) : (Math.random() - 0.5) * 0.5,
-        vy: fromSide ? (Math.random() - 0.5) * 0.5 : (Math.random() > 0.5 ? 1.5 : -1.5),
-        width: 4,
-        height: 12,
-        rotation: Math.random() * 360,
+        id: baseId + i,
+        x,
+        y,
+        vx,
+        vy,
+        width: 12,
+        height: 36,
+        rotation: rotation - 90,
         isWarning: true,
       });
     }
@@ -197,7 +220,7 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
       setMessage("* L'IA accepte la trêve...");
       setTimeout(() => {
         setPhase('victory');
-        setTimeout(onBattleComplete, 3000);
+        setTimeout(() => onBattleComplete('spared'), 3000);
       }, 2000);
       return;
     } else if (action.name === 'ÉPARGNER') {
@@ -381,7 +404,7 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
     if (aiHP <= 0 && phase !== 'victory') {
       setPhase('victory');
       setMessage("* Vous avez vaincu l'IA !");
-      setTimeout(onBattleComplete, 3000);
+      setTimeout(() => onBattleComplete('defeated'), 3000);
     }
     
     if (playerHP <= 0 && phase !== 'game-over') {
