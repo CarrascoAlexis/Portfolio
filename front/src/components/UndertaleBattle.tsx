@@ -281,18 +281,28 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
       lastTime = currentTime;
       
       const speed = 1.44; // Reduced by 20% from 1.8
+      let deltaX = 0;
+      let deltaY = 0;
       
       if (keysPressed.current.has('ArrowLeft')) {
-        setPlayerX(prev => Math.max(5, prev - speed * deltaTime));
+        deltaX -= speed * deltaTime;
       }
       if (keysPressed.current.has('ArrowRight')) {
-        setPlayerX(prev => Math.min(95, prev + speed * deltaTime));
+        deltaX += speed * deltaTime;
       }
       if (keysPressed.current.has('ArrowUp')) {
-        setPlayerY(prev => Math.max(5, prev - speed * deltaTime));
+        deltaY -= speed * deltaTime;
       }
       if (keysPressed.current.has('ArrowDown')) {
-        setPlayerY(prev => Math.min(95, prev + speed * deltaTime));
+        deltaY += speed * deltaTime;
+      }
+
+      // Update both X and Y in one operation to avoid multiple re-renders
+      if (deltaX !== 0) {
+        setPlayerX(prev => Math.max(5, Math.min(95, prev + deltaX)));
+      }
+      if (deltaY !== 0) {
+        setPlayerY(prev => Math.max(5, Math.min(95, prev + deltaY)));
       }
 
       animationFrameId = requestAnimationFrame(updateMovement);
@@ -327,17 +337,18 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
   }, [phase, handlePlayerAction]);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
-    if (phase === 'ai-attack') {
-      keysPressed.current.delete(e.key);
-    }
-  }, [phase]);
+    keysPressed.current.delete(e.key);
+  }, []);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    
+    // Cleanup: clear all pressed keys when unmounting or phase changes
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      keysPressed.current.clear();
     };
   }, [handleKeyDown, handleKeyUp]);
 
