@@ -352,7 +352,8 @@
 /* Attack Projectiles - Pixel Art Bones */
 .attack-projectile {
   position: absolute;
-  background: #ffffff;
+  background: url('/src/assets/os.png') center center no-repeat;
+  background-size: contain;
   pointer-events: none;
   transition: opacity 0.2s ease;
   z-index: 5;
@@ -363,14 +364,7 @@
 }
 
 .attack-projectile::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    linear-gradient(to right, #ffffff 0%, #ffffff 30%, #cccccc 30%, #cccccc 70%, #ffffff 70%, #ffffff 100%);
+  content: none;
 }
 
 .attack-projectile.warning {
