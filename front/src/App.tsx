@@ -69,7 +69,7 @@ function App() {
                 <div style={{
                   position: 'fixed',
                   top: '10px',
-                  right: '10px',
+                  left: '10px',
                   zIndex: 99999,
                   display: 'flex',
                   gap: '8px',
@@ -91,7 +91,7 @@ function App() {
                 </div>
               )}
               {isDev && !showDevControls && (
-                <button onClick={() => setShowDevControls(true)} style={{ position: 'fixed', top: '10px', right: '10px', zIndex: 99999, padding: '6px 10px', background: '#111', color: '#00ff00', border: '2px solid #00ff00', borderRadius: '6px', cursor: 'pointer' }}>Dev</button>
+                <button onClick={() => setShowDevControls(true)} style={{ position: 'fixed', top: '10px', left: '10px', zIndex: 99999, padding: '6px 10px', background: '#111', color: '#00ff00', border: '2px solid #00ff00', borderRadius: '6px', cursor: 'pointer' }}>Dev</button>
               )}
         
         <GameOverlay isActive={isGameActive} onClose={() => setIsGameActive(false)} />
