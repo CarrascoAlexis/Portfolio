@@ -17,8 +17,7 @@ function App() {
   const [glitchIntensity, setGlitchIntensity] = useState(0);
   const [gamePhase, setGamePhase] = useState<'normal' | 'blackout' | 'dialogue' | 'battle' | 'post-battle'>('normal');
   
-  // Always show in dev mode
-  const isDev = true; // Force dev mode for testing
+  const isDev = import.meta.env.DEV;
 
   const handleGameToggle = () => {
     setIsGameActive(!isGameActive);
