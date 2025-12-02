@@ -101,6 +101,7 @@
 .nav {
   display: flex;
   gap: var(--spacing-lg);
+  align-items: center;
 }
 
 .nav a {
@@ -111,6 +112,7 @@
   padding: 0.5rem 0;
   position: relative;
   font-family: var(--font-mono);
+  text-decoration: none;
 }
 
 .nav a::after {
@@ -130,6 +132,118 @@
 
 .nav a:hover::after {
   width: 100%;
+}
+
+.theme-dropdown {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-family: var(--font-mono);
+  letter-spacing: 1.5px;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  outline: none;
+  font-weight: 400;
+}
+
+.theme-dropdown:hover {
+  color: var(--accent-primary);
+}
+
+.theme-dropdown option {
+  background: var(--bg-accent);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+/* Theme button + dropdown (borderless) */
+.theme-wrapper {
+  position: relative;
+}
+
+.theme-button {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-family: var(--font-mono);
+  letter-spacing: 1.5px;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  position: relative;
+}
+
+.theme-button:focus {
+  outline: none;
+}
+
+.theme-button::after {
+  content: '▾';
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  display: inline-block;
+  margin-left: 0.15rem;
+}
+
+/* underline like nav links */
+.theme-button::before {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--accent-primary);
+  transition: width var(--transition-normal);
+}
+
+.theme-button:hover::before,
+.theme-wrapper.open .theme-button::before {
+  width: 100%;
+}
+
+.theme-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  background: var(--bg-accent);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 20px var(--shadow);
+  border-radius: 6px;
+  padding: 0.25rem 0;
+  min-width: 160px;
+  z-index: 1002;
+}
+
+.theme-wrapper.open .theme-menu {
+  display: block;
+}
+
+.theme-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  cursor: pointer;
+}
+
+.theme-menu-item:hover {
+  color: var(--accent-primary);
+  background: rgba(0,0,0,0.03);
+}
+
+/* Ensure dropdown text uses primary text color when open */
+.theme-wrapper.open .theme-menu-item {
+  color: var(--text-primary);
 }
 
 @media (max-width: 768px) {
@@ -160,5 +274,31 @@
   .nav a {
     font-size: 1.1rem;
     padding: var(--spacing-sm) 0;
+  }
+}
+
+/* Mobile: increase contrast of header controls when Fever Dream is active */
+@media (max-width: 768px) {
+  html[data-theme="fever-dream"] .menu-toggle .hamburger,
+  html[data-theme="fever-dream"] .menu-toggle .hamburger::before,
+  html[data-theme="fever-dream"] .menu-toggle .hamburger::after {
+    background: var(--text-primary);
+    height: 3px;
+  }
+
+  html[data-theme="fever-dream"] .theme-button {
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.04);
+    padding: 0.35rem 0.65rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+
+  html[data-theme="fever-dream"] .theme-button::after {
+    color: var(--text-primary);
+  }
+
+  html[data-theme="fever-dream"] .nav {
+    box-shadow: -5px 0 30px rgba(10,6,20,0.6);
   }
 }
