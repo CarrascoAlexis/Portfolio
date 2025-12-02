@@ -18,6 +18,7 @@ function App() {
   const [gamePhase, setGamePhase] = useState<'normal' | 'blackout' | 'dialogue' | 'battle' | 'post-battle'>('normal');
   
   const isDev = import.meta.env.DEV;
+  const [showDevControls, setShowDevControls] = useState(true);
 
   const handleGameToggle = () => {
     setIsGameActive(!isGameActive);
@@ -64,28 +65,34 @@ function App() {
         <Footer onGameToggle={handleGameToggle} />
         
         {/* Dev Phase Skip Controls */}
-        {isDev && (
-          <div style={{
-            position: 'fixed',
-            top: '10px',
-            right: '10px',
-            zIndex: 99999,
-            display: 'flex',
-            gap: '8px',
-            flexDirection: 'column',
-            background: 'rgba(0, 0, 0, 0.8)',
-            padding: '12px',
-            borderRadius: '8px',
-            border: '2px solid #00ff00',
-          }}>
-            <div style={{ color: '#00ff00', fontSize: '12px', fontWeight: 'bold', marginBottom: '4px' }}>DEV CONTROLS</div>
-            <button onClick={() => handlePhaseSkip('normal')} style={{ padding: '6px 12px', fontSize: '11px', background: '#333', color: '#fff', border: '1px solid #666', borderRadius: '4px', cursor: 'pointer' }}>Normal</button>
-            <button onClick={() => handlePhaseSkip('blackout')} style={{ padding: '6px 12px', fontSize: '11px', background: '#333', color: '#fff', border: '1px solid #666', borderRadius: '4px', cursor: 'pointer' }}>Blackout</button>
-            <button onClick={() => handlePhaseSkip('dialogue')} style={{ padding: '6px 12px', fontSize: '11px', background: '#333', color: '#fff', border: '1px solid #666', borderRadius: '4px', cursor: 'pointer' }}>Dialogue</button>
-            <button onClick={() => handlePhaseSkip('battle')} style={{ padding: '6px 12px', fontSize: '11px', background: '#333', color: '#fff', border: '1px solid #666', borderRadius: '4px', cursor: 'pointer' }}>Battle</button>
-            <div style={{ color: '#888', fontSize: '10px', marginTop: '4px' }}>Phase: {gamePhase}</div>
-          </div>
-        )}
+              {isDev && showDevControls && (
+                <div style={{
+                  position: 'fixed',
+                  top: '10px',
+                  right: '10px',
+                  zIndex: 99999,
+                  display: 'flex',
+                  gap: '8px',
+                  flexDirection: 'column',
+                  background: 'rgba(0, 0, 0, 0.8)',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '2px solid #00ff00',
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ color: '#00ff00', fontSize: '12px', fontWeight: 'bold', marginBottom: '4px' }}>DEV CONTROLS</div>
+                    <button onClick={() => setShowDevControls(false)} style={{ padding: '4px 8px', fontSize: '10px', background: '#222', color: '#fff', border: '1px solid #444', borderRadius: '4px', cursor: 'pointer' }}>Hide</button>
+                  </div>
+                  <button onClick={() => handlePhaseSkip('normal')} style={{ padding: '6px 12px', fontSize: '11px', background: '#333', color: '#fff', border: '1px solid #666', borderRadius: '4px', cursor: 'pointer' }}>Normal</button>
+                  <button onClick={() => handlePhaseSkip('blackout')} style={{ padding: '6px 12px', fontSize: '11px', background: '#333', color: '#fff', border: '1px solid #666', borderRadius: '4px', cursor: 'pointer' }}>Blackout</button>
+                  <button onClick={() => handlePhaseSkip('dialogue')} style={{ padding: '6px 12px', fontSize: '11px', background: '#333', color: '#fff', border: '1px solid #666', borderRadius: '4px', cursor: 'pointer' }}>Dialogue</button>
+                  <button onClick={() => handlePhaseSkip('battle')} style={{ padding: '6px 12px', fontSize: '11px', background: '#333', color: '#fff', border: '1px solid #666', borderRadius: '4px', cursor: 'pointer' }}>Battle</button>
+                  <div style={{ color: '#888', fontSize: '10px', marginTop: '4px' }}>Phase: {gamePhase}</div>
+                </div>
+              )}
+              {isDev && !showDevControls && (
+                <button onClick={() => setShowDevControls(true)} style={{ position: 'fixed', top: '10px', right: '10px', zIndex: 99999, padding: '6px 10px', background: '#111', color: '#00ff00', border: '2px solid #00ff00', borderRadius: '6px', cursor: 'pointer' }}>Dev</button>
+              )}
         
         <GameOverlay isActive={isGameActive} onClose={() => setIsGameActive(false)} />
         
