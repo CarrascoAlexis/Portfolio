@@ -49,6 +49,7 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
   const [canSpare, setCanSpare] = useState(false);
   const [isInvincible, setIsInvincible] = useState(false);
   const attackTimeoutRef = useRef<number | null>(null);
+  const keysPressed = useRef<Set<string>>(new Set());
 
   
   // Intro sequence
@@ -251,9 +252,34 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
     return () => clearInterval(interval);
   }, [phase, attacks.length, playerX, playerY, isInvincible]);
 
+  // Continuous movement during ai-attack phase
+  useEffect(() => {
+    if (phase !== 'ai-attack') return;
+
+    const moveInterval = setInterval(() => {
+      const speed = 2.5;
+      
+      if (keysPressed.current.has('ArrowLeft')) {
+        setPlayerX(prev => Math.max(5, prev - speed));
+      }
+      if (keysPressed.current.has('ArrowRight')) {
+        setPlayerX(prev => Math.min(95, prev + speed));
+      }
+      if (keysPressed.current.has('ArrowUp')) {
+        setPlayerY(prev => Math.max(5, prev - speed));
+      }
+      if (keysPressed.current.has('ArrowDown')) {
+        setPlayerY(prev => Math.min(95, prev + speed));
+      }
+    }, 16); // ~60fps
+
+    return () => clearInterval(moveInterval);
+  }, [phase]);
+
 
   // Keyboard controls
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.repeat) return; // Ignore key repeat
     e.preventDefault();
     
     if (phase === 'player-turn') {
@@ -265,23 +291,24 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
         handlePlayerAction();
       }
     } else if (phase === 'ai-attack') {
-      const speed = 2.5;
-      if (e.key === 'ArrowLeft') {
-        setPlayerX(prev => Math.max(5, prev - speed));
-      } else if (e.key === 'ArrowRight') {
-        setPlayerX(prev => Math.min(95, prev + speed));
-      } else if (e.key === 'ArrowUp') {
-        setPlayerY(prev => Math.max(5, prev - speed));
-      } else if (e.key === 'ArrowDown') {
-        setPlayerY(prev => Math.min(95, prev + speed));
-      }
+      keysPressed.current.add(e.key);
     }
   }, [phase, handlePlayerAction]);
 
+  const handleKeyUp = useCallback((e: KeyboardEvent) => {
+    if (phase === 'ai-attack') {
+      keysPressed.current.delete(e.key);
+    }
+  }, [phase]);
+
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [handleKeyDown, handleKeyUp]);
 
   // Check victory/defeat
   useEffect(() => {
