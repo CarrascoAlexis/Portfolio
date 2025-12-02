@@ -36,6 +36,13 @@ const PLAYER_ACTIONS = [
   { name: 'ÉPARGNER', color: '#ffff00' },
 ];
 
+const ACTION_ICONS: Record<string, string> = {
+  'FERMER': '⚔',
+  'DISCUTER': '💬',
+  'IGNORER': '🚶',
+  'ÉPARGNER': '❤',
+};
+
 export default function UndertaleBattle({ onBattleComplete }: UndertaleBattleProps) {
   const [phase, setPhase] = useState<BattlePhase>('intro');
   const [playerHP, setPlayerHP] = useState(20);
@@ -460,10 +467,9 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
               <div 
                 key={action.name}
                 className={`action-button ${selectedAction === index ? 'selected' : ''} ${action.name === 'ÉPARGNER' && canSpare ? 'spareable' : ''}`}
-                style={{ borderColor: selectedAction === index ? action.color : '#fff' }}
               >
-                {selectedAction === index && '❤ '}
-                {action.name}
+                <span className="action-icon">{ACTION_ICONS[action.name]}</span>
+                <span className="action-label">{action.name}</span>
               </div>
             ))}
           </div>

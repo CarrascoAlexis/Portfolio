@@ -212,7 +212,7 @@
 }
 
 .action-button {
-  font-family: 'Determination Mono', 'Courier New', monospace;
+  font-family: 'Press Start 2P', 'Determination Mono', 'Courier New', monospace;
   font-size: 1.8rem;
   color: #ff9a2c; /* orange text */
   background: #000; /* black interior */
@@ -229,8 +229,8 @@
 }
 
 .action-button.selected {
-  background: #ff9a2c; /* orange filled when selected */
-  color: #000; /* black text on orange */
+  background: #ffff00; /* yellow when selected */
+  color: #000; /* black text on yellow */
   transform: scale(1.02);
 }
 
@@ -238,6 +238,17 @@
   color: #ffff00;
   border-color: #ffff00;
   animation: sparePulse 0.8s ease-in-out infinite;
+}
+
+.action-icon {
+  display: inline-block;
+  width: 1.4rem;
+  margin-right: 0.6rem;
+  text-align: center;
+}
+
+.action-label {
+  vertical-align: middle;
 }
 
 @keyframes sparePulse {
