@@ -124,8 +124,8 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
         y: -15,
         vx: 0,
         vy: 2,
-        width: 4,
-        height: 15,
+        width: 12,
+        height: 36,
         rotation: 0,
         isWarning: true,
       });
@@ -135,9 +135,9 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
         y: 20 + i * 15,
         vx: 2,
         vy: 0,
-        width: 15,
-        height: 4,
-        rotation: 0,
+        width: 12,
+        height: 36,
+        rotation: -90,
         isWarning: true,
       });
     }
@@ -166,9 +166,9 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
         y,
         vx: -Math.cos(angle) * 1.2,
         vy: -Math.sin(angle) * 1.2,
-        width: 4,
-        height: 10,
-        rotation: (angle * 180 / Math.PI) + 90,
+        width: 12,
+        height: 36,
+        rotation: (angle * 180 / Math.PI),
         isWarning: true,
       });
     }
@@ -188,9 +188,9 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
         x: 25 + i * 16.66,
         y: -20,
         vx: 0,
-        vy: 4,
+        vy: 2.5,
         width: 12,
-        height: 20,
+        height: 36,
         rotation: 0,
         isWarning: true,
       });
