@@ -36,11 +36,12 @@ const PLAYER_ACTIONS = [
   { name: 'ÉPARGNER', color: '#ffff00' },
 ];
 
-const ACTION_ICONS: Record<string, string> = {
-  'FERMER': '⚔',
-  'DISCUTER': '💬',
-  'IGNORER': '🚶',
-  'ÉPARGNER': '❤',
+// CSS will supply pixel icons via classes; map names to CSS-friendly keys
+const ACTION_ICON_CLASS: Record<string, string> = {
+  'FERMER': 'icon-fermer',
+  'DISCUTER': 'icon-discuter',
+  'IGNORER': 'icon-ignorer',
+  'ÉPARGNER': 'icon-epargner',
 };
 
 export default function UndertaleBattle({ onBattleComplete }: UndertaleBattleProps) {
@@ -468,7 +469,7 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
                 key={action.name}
                 className={`action-button ${selectedAction === index ? 'selected' : ''} ${action.name === 'ÉPARGNER' && canSpare ? 'spareable' : ''}`}
               >
-                <span className="action-icon">{ACTION_ICONS[action.name]}</span>
+                <span className={`action-icon ${ACTION_ICON_CLASS[action.name] || ''}`} aria-hidden="true" />
                 <span className="action-label">{action.name}</span>
               </div>
             ))}
