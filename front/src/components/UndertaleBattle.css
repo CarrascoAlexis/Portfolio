@@ -33,8 +33,10 @@
 }
 
 .boss-sprite {
-  width: 600px;
-  height: 600px;
+  width: 200px;
+  height: 200px;
+  background: url('/src/assets/robot_asset.png') center center no-repeat;
+  background-size: contain;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -54,7 +56,7 @@
 
 /* Boss Head - Pixel Art Style */
 .boss-head {
-  display: none; /* hidden because sprite image is used on .boss-sprite */
+  display: none; /* kept hidden because sprite image is used on .boss-sprite */
 }
 
 .boss-eye {
@@ -433,8 +435,9 @@
   }
 
   .boss-sprite {
-    width: 450px;
-    height: 450px;
+    width: 150px;
+    height: 150px;
+    background-size: contain;
   }
 
   .boss-head {
