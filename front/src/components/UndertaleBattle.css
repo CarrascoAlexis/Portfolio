@@ -293,55 +293,6 @@
 .player-heart {
   position: absolute;
   width: 16px;
-  height: 16px;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 10;
-  image-rendering: pixelated;
-  font-size: 0;
-  background: transparent;
-}
-
-/* Heart shape using pseudo-elements */
-.player-heart::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 4px;
-  width: 8px;
-  height: 4px;
-  background: #ff0000;
-}
-
-.player-heart::after {
-  content: '';
-  position: absolute;
-  top: 4px;
-  left: 0;
-  width: 16px;
-  height: 8px;
-  background: 
-    linear-gradient(to right, 
-      #ff0000 0%, #ff0000 25%,
-      transparent 25%, transparent 37.5%,
-      #ff0000 37.5%, #ff0000 62.5%,
-      transparent 62.5%, transparent 75%,
-      #ff0000 75%, #ff0000 100%
-    ),
-    linear-gradient(to bottom,
-      #ff0000 0%, #ff0000 50%,
-      transparent 50%, transparent 62.5%,
-      #ff0000 62.5%, #ff0000 100%
-    );
-  background-position: 0 0, 0 0;
-  background-size: 100% 50%, 100% 100%;
-  background-repeat: no-repeat;
-}
-
-/* Simplified heart - actual Undertale style */
-.player-heart {
-  position: absolute;
-  width: 16px;
   height: 14px;
   transform: translate(-50%, -50%);
   pointer-events: none;
