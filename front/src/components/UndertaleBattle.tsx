@@ -74,8 +74,8 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
       const fromSide = Math.random() > 0.5;
       bones.push({
         id: Date.now() + i,
-        x: fromSide ? (Math.random() > 0.5 ? -5 : 105) : Math.random() * 100,
-        y: fromSide ? Math.random() * 100 : (Math.random() > 0.5 ? -5 : 105),
+        x: fromSide ? (Math.random() > 0.5 ? -15 : 115) : Math.random() * 100,
+        y: fromSide ? Math.random() * 100 : (Math.random() > 0.5 ? -15 : 115),
         vx: fromSide ? (Math.random() > 0.5 ? 1.5 : -1.5) : (Math.random() - 0.5) * 0.5,
         vy: fromSide ? (Math.random() - 0.5) * 0.5 : (Math.random() > 0.5 ? 1.5 : -1.5),
         width: 4,
@@ -98,7 +98,7 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
       crossAttacks.push({
         id: Date.now() + i * 2,
         x: 20 + i * 15,
-        y: -5,
+        y: -15,
         vx: 0,
         vy: 2,
         width: 4,
@@ -108,7 +108,7 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
       });
       crossAttacks.push({
         id: Date.now() + i * 2 + 1,
-        x: -5,
+        x: -15,
         y: 20 + i * 15,
         vx: 2,
         vy: 0,
@@ -163,7 +163,7 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
       slamAttacks.push({
         id: Date.now() + i,
         x: 25 + i * 16.66,
-        y: -10,
+        y: -20,
         vx: 0,
         vy: 4,
         width: 12,
@@ -490,4 +490,3 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
     </div>
   );
 }
-
