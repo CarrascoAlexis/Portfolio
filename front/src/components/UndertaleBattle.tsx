@@ -17,6 +17,7 @@ interface Attack {
   width?: number;
   height?: number;
   rotation?: number;
+  isWarning?: boolean; // New: to show static warning before movement
 }
 
 const AI_DIALOGUES = [
@@ -80,9 +81,15 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
         width: 4,
         height: 12,
         rotation: Math.random() * 360,
+        isWarning: true,
       });
     }
     setAttacks(bones);
+    
+    // Remove warning state after 750ms to start movement
+    setTimeout(() => {
+      setAttacks(prev => prev.map(a => ({ ...a, isWarning: false })));
+    }, 750);
   }, []);
 
   const generateCross = useCallback(() => {
@@ -97,6 +104,7 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
         width: 4,
         height: 15,
         rotation: 0,
+        isWarning: true,
       });
       crossAttacks.push({
         id: Date.now() + i * 2 + 1,
@@ -107,9 +115,14 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
         width: 15,
         height: 4,
         rotation: 0,
+        isWarning: true,
       });
     }
     setAttacks(crossAttacks);
+    
+    setTimeout(() => {
+      setAttacks(prev => prev.map(a => ({ ...a, isWarning: false })));
+    }, 750);
   }, []);
 
   const generateCircle = useCallback(() => {
@@ -133,9 +146,14 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
         width: 4,
         height: 10,
         rotation: (angle * 180 / Math.PI) + 90,
+        isWarning: true,
       });
     }
     setAttacks(circleAttacks);
+    
+    setTimeout(() => {
+      setAttacks(prev => prev.map(a => ({ ...a, isWarning: false })));
+    }, 750);
   }, []);
 
   const generateSlam = useCallback(() => {
@@ -151,9 +169,14 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
         width: 12,
         height: 20,
         rotation: 0,
+        isWarning: true,
       });
     }
     setAttacks(slamAttacks);
+    
+    setTimeout(() => {
+      setAttacks(prev => prev.map(a => ({ ...a, isWarning: false })));
+    }, 750);
   }, []);
 
 
@@ -232,8 +255,9 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
         const updated = prev
           .map(attack => ({
             ...attack,
-            x: attack.x + attack.vx * deltaTime,
-            y: attack.y + attack.vy * deltaTime,
+            // Only move if not in warning state
+            x: attack.isWarning ? attack.x : attack.x + attack.vx * deltaTime,
+            y: attack.isWarning ? attack.y : attack.y + attack.vy * deltaTime,
           }))
           .filter(attack => 
             attack.x >= -15 && attack.x <= 115 &&
@@ -435,7 +459,7 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
             {attacks.map(attack => (
               <div
                 key={attack.id}
-                className="attack-projectile"
+                className={`attack-projectile ${attack.isWarning ? 'warning' : ''}`}
                 style={{ 
                   left: `${attack.x}%`, 
                   top: `${attack.y}%`,

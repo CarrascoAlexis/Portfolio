@@ -301,6 +301,21 @@
   background: #ffffff;
   pointer-events: none;
   box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+  transition: opacity 0.2s ease;
+}
+
+.attack-projectile.warning {
+  opacity: 0.6;
+  animation: warningPulse 0.3s ease-in-out infinite;
+}
+
+@keyframes warningPulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 
 /* Player Stats */
