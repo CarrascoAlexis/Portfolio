@@ -212,6 +212,9 @@ function App() {
                       <div
                         ref={panelRef}
                         onMouseDown={(e) => {
+                          // Ignore drags when clicking interactive controls inside the header (like buttons)
+                          const target = e.target as HTMLElement | null;
+                          if (target && target.closest && target.closest('button, a, [role="button"], input, textarea')) return;
                           e.preventDefault(); // prevent text selection start
                           // start dragging if header is grabbed
                           const rect = panelRef.current?.getBoundingClientRect();
@@ -220,8 +223,11 @@ function App() {
                           setDragPos({ x: rect.left, y: rect.top });
                         }}
                         onTouchStart={(e) => {
-                          e.preventDefault();
+                          // For touch, determine the touched element and ignore if interactive
                           const touch = e.touches[0];
+                          const el = touch ? document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement | null : null;
+                          if (el && el.closest && el.closest('button, a, [role="button"], input, textarea')) return;
+                          e.preventDefault();
                           const rect = panelRef.current?.getBoundingClientRect();
                           if (!rect || !touch) return;
                           dragOffset.current = { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
