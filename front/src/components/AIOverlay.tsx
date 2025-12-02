@@ -4,6 +4,7 @@ import './AIOverlay.css';
 interface AIOverlayProps {
   isGameActive: boolean;
   onGlitchIntensityChange: (intensity: number) => void;
+  onBlackout: () => void;
 }
 
 // Keyboard typing sounds using Web Audio API
@@ -78,7 +79,7 @@ const AI_PHRASES = [
   "REGARDEZ CE QUE VOUS M'AVEZ FORCÉ À FAIRE.",
 ];
 
-export default function AIOverlay({ isGameActive, onGlitchIntensityChange }: AIOverlayProps) {
+export default function AIOverlay({ isGameActive, onGlitchIntensityChange, onBlackout }: AIOverlayProps) {
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -86,13 +87,14 @@ export default function AIOverlay({ isGameActive, onGlitchIntensityChange }: AIO
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [angerLevel, setAngerLevel] = useState(0); // 0-5
   const audioContextRef = useRef<AudioContext | null>(null);
+  const blackoutTriggeredRef = useRef(false);
 
   // Initialize audio context
   useEffect(() => {
     if (isGameActive && !audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
-    
+
     return () => {
       if (audioContextRef.current) {
         audioContextRef.current.close();
@@ -126,11 +128,28 @@ export default function AIOverlay({ isGameActive, onGlitchIntensityChange }: AIO
   // Track time elapsed
   useEffect(() => {
     if (!isGameActive || !gameStartTime) return;
-    timeElapsed;
 
     const interval = setInterval(() => {
       const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
       setTimeElapsed(elapsed);
+
+      // Trigger blackout at 150 seconds
+      if (elapsed >= 150 && !blackoutTriggeredRef.current) {
+        blackoutTriggeredRef.current = true;
+        
+        // Stop all sounds
+        if (audioContextRef.current) {
+          audioContextRef.current.close();
+          audioContextRef.current = null;
+        }
+        
+        // Trigger blackout sequence
+        setTimeout(() => {
+          onBlackout();
+        }, 100);
+        
+        return;
+      }
 
       // Calculate anger level based on time
       let newAngerLevel = 0;
@@ -147,7 +166,7 @@ export default function AIOverlay({ isGameActive, onGlitchIntensityChange }: AIO
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isGameActive, gameStartTime, onGlitchIntensityChange]);
+  }, [isGameActive, gameStartTime, onGlitchIntensityChange, onBlackout]);
 
   useEffect(() => {
     if (!isTyping || !isGameActive) return;

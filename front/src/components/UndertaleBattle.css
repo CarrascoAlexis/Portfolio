@@ -1,0 +1,165 @@
+.undertale-battle {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #000000;
+  z-index: 10003;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.battle-ui {
+  width: 90%;
+  max-width: 700px;
+  color: #ffffff;
+}
+
+.battle-message {
+  font-family: 'Determination Mono', 'Courier New', monospace;
+  font-size: 1.5rem;
+  color: #ffffff;
+  margin-bottom: 2rem;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.battle-stats {
+  margin-bottom: 2rem;
+}
+
+.player-name {
+  font-family: 'Determination Mono', 'Courier New', monospace;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.hp-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.hp-label {
+  font-family: 'Determination Mono', 'Courier New', monospace;
+  font-size: 1.2rem;
+  color: #ff0000;
+}
+
+.hp-container {
+  flex: 1;
+  height: 24px;
+  background: #8b0000;
+  border: 2px solid #ffffff;
+  position: relative;
+}
+
+.hp-fill {
+  height: 100%;
+  background: #ffff00;
+  transition: width 0.3s ease;
+}
+
+.hp-text {
+  font-family: 'Determination Mono', 'Courier New', monospace;
+  font-size: 1rem;
+  min-width: 80px;
+}
+
+.battle-box {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 500px;
+  max-height: 500px;
+  margin: 0 auto;
+  background: #000000;
+  border: 5px solid #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.player-heart {
+  position: absolute;
+  font-size: 2rem;
+  color: #ff0000;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8));
+  animation: heartBeat 0.5s ease-in-out infinite;
+}
+
+@keyframes heartBeat {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+.attack-bone {
+  position: absolute;
+  width: 20px;
+  height: 60px;
+  background: #ffffff;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.victory-message {
+  text-align: center;
+  margin-top: 2rem;
+  animation: victoryPulse 1s ease-in-out infinite;
+}
+
+.victory-message p {
+  font-family: 'Determination Mono', 'Courier New', monospace;
+  font-size: 3rem;
+  color: #ffff00;
+  margin: 0;
+  text-shadow: 
+    0 0 20px rgba(255, 255, 0, 0.8),
+    0 0 40px rgba(255, 255, 0, 0.5);
+}
+
+@keyframes victoryPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@media (max-width: 768px) {
+  .battle-message {
+    font-size: 1.2rem;
+  }
+
+  .battle-box {
+    max-width: 90vw;
+    max-height: 90vw;
+  }
+
+  .player-heart {
+    font-size: 1.5rem;
+  }
+
+  .attack-bone {
+    width: 15px;
+    height: 45px;
+  }
+}

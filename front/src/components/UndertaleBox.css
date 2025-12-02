@@ -1,0 +1,53 @@
+.undertale-box {
+  position: fixed;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10002;
+  animation: slideUpBox 0.5s ease-out;
+}
+
+@keyframes slideUpBox {
+  from {
+    transform: translateX(-50%) translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+.undertale-box-inner {
+  background: #000000;
+  border: 4px solid #ffffff;
+  padding: 1.5rem 2rem;
+  min-width: 600px;
+  max-width: 700px;
+  box-shadow: 
+    inset 0 0 0 4px #000000,
+    inset 0 0 0 8px #ffffff,
+    0 8px 0 rgba(0, 0, 0, 0.5);
+}
+
+.undertale-text {
+  font-family: 'Determination Mono', 'Courier New', monospace;
+  font-size: 1.5rem;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.5;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 768px) {
+  .undertale-box-inner {
+    min-width: 90vw;
+    max-width: 90vw;
+    padding: 1rem 1.5rem;
+  }
+
+  .undertale-text {
+    font-size: 1.2rem;
+  }
+}
