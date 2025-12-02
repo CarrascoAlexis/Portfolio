@@ -21,8 +21,8 @@ export default function Footer({ onGameToggle }: FooterProps) {
           <button className="game-toggle-btn" onClick={handleGameClick}>
             🎮 Lancer le jeu
           </button>
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="https://github.com/CarrascoAlexis" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://www.linkedin.com/in/acarrasco75019/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
         </div>
       </div>
     </footer>
