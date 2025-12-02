@@ -7,6 +7,7 @@ import AIOverlay from './components/AIOverlay';
 import GlitchEffect from './components/GlitchEffect';
 import UndertaleBox from './components/UndertaleBox';
 import UndertaleBattle from './components/UndertaleBattle';
+import GraffitiOverlay from './components/GraffitiOverlay';
 import Home from './pages/Home';
 import About from './pages/About';
 import Portfolio from './pages/Portfolio';
@@ -196,6 +197,7 @@ function App() {
   return (
     <BrowserRouter>
       <div className="app">
+        <GraffitiOverlay />
         <Header />
         <main className="main-content">
           <Routes>
