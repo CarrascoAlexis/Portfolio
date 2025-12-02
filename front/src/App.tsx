@@ -107,6 +107,20 @@ function App() {
     };
   }, [dragPos]);
 
+  // While dragging, disable text selection and touch actions globally to prevent accidental selection.
+  useEffect(() => {
+    if (!dragPos) return;
+    const prevUserSelect = document.body.style.userSelect;
+    const prevTouchAction = document.body.style.touchAction;
+    document.body.style.userSelect = 'none';
+    document.body.style.touchAction = 'none';
+
+    return () => {
+      document.body.style.userSelect = prevUserSelect || '';
+      document.body.style.touchAction = prevTouchAction || '';
+    };
+  }, [dragPos]);
+
   // Compute panel style depending on corner or dragPos
   const getPanelStyle = () => {
     const base = {
@@ -198,6 +212,7 @@ function App() {
                       <div
                         ref={panelRef}
                         onMouseDown={(e) => {
+                          e.preventDefault(); // prevent text selection start
                           // start dragging if header is grabbed
                           const rect = panelRef.current?.getBoundingClientRect();
                           if (!rect) return;
@@ -205,6 +220,7 @@ function App() {
                           setDragPos({ x: rect.left, y: rect.top });
                         }}
                         onTouchStart={(e) => {
+                          e.preventDefault();
                           const touch = e.touches[0];
                           const rect = panelRef.current?.getBoundingClientRect();
                           if (!rect || !touch) return;
