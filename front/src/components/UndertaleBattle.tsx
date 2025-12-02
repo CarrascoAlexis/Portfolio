@@ -50,6 +50,7 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
   const [isInvincible, setIsInvincible] = useState(false);
   const attackTimeoutRef = useRef<number | null>(null);
   const keysPressed = useRef<Set<string>>(new Set());
+  const lastFrameTime = useRef<number>(Date.now());
 
   
   // Intro sequence
@@ -219,13 +220,20 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
   useEffect(() => {
     if (phase !== 'ai-attack' || attacks.length === 0) return;
 
-    const interval = setInterval(() => {
+    let animationFrameId: number;
+    let lastTime = Date.now();
+
+    const updateAttacks = () => {
+      const currentTime = Date.now();
+      const deltaTime = (currentTime - lastTime) / 16.67; // Normalize to 60fps (16.67ms per frame)
+      lastTime = currentTime;
+
       setAttacks(prev => {
         const updated = prev
           .map(attack => ({
             ...attack,
-            x: attack.x + attack.vx,
-            y: attack.y + attack.vy,
+            x: attack.x + attack.vx * deltaTime,
+            y: attack.y + attack.vy * deltaTime,
           }))
           .filter(attack => 
             attack.x >= -15 && attack.x <= 115 &&
@@ -247,33 +255,56 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
 
         return updated;
       });
-    }, 50);
 
-    return () => clearInterval(interval);
+      animationFrameId = requestAnimationFrame(updateAttacks);
+    };
+
+    animationFrameId = requestAnimationFrame(updateAttacks);
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, [phase, attacks.length, playerX, playerY, isInvincible]);
 
   // Continuous movement during ai-attack phase
   useEffect(() => {
     if (phase !== 'ai-attack') return;
 
-    const moveInterval = setInterval(() => {
-      const speed = 2.5;
+    let animationFrameId: number;
+    let lastTime = Date.now();
+
+    const updateMovement = () => {
+      const currentTime = Date.now();
+      const deltaTime = (currentTime - lastTime) / 16.67; // Normalize to 60fps
+      lastTime = currentTime;
+      
+      const speed = 1.8; // Reduced from 2.5 for slower movement
       
       if (keysPressed.current.has('ArrowLeft')) {
-        setPlayerX(prev => Math.max(5, prev - speed));
+        setPlayerX(prev => Math.max(5, prev - speed * deltaTime));
       }
       if (keysPressed.current.has('ArrowRight')) {
-        setPlayerX(prev => Math.min(95, prev + speed));
+        setPlayerX(prev => Math.min(95, prev + speed * deltaTime));
       }
       if (keysPressed.current.has('ArrowUp')) {
-        setPlayerY(prev => Math.max(5, prev - speed));
+        setPlayerY(prev => Math.max(5, prev - speed * deltaTime));
       }
       if (keysPressed.current.has('ArrowDown')) {
-        setPlayerY(prev => Math.min(95, prev + speed));
+        setPlayerY(prev => Math.min(95, prev + speed * deltaTime));
       }
-    }, 16); // ~60fps
 
-    return () => clearInterval(moveInterval);
+      animationFrameId = requestAnimationFrame(updateMovement);
+    };
+
+    animationFrameId = requestAnimationFrame(updateMovement);
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, [phase]);
 
 
