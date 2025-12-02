@@ -518,3 +518,5 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
     </div>
   );
 }
+
+
