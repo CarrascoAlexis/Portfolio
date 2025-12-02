@@ -36,13 +36,18 @@ function App() {
     }
   };
 
-  const handleBattleComplete = () => {
-    setGamePhase('post-battle');
-    setGlitchIntensity(0);
-    // Return to normal gameplay after battle
-    setTimeout(() => {
+  const handleBattleComplete = (outcome: 'defeated' | 'spared') => {
+    if (outcome === 'spared') {
+      // L'IA est épargnée, retour au début du jeu
       setGamePhase('normal');
-    }, 1000);
+      setGlitchIntensity(0);
+      setIsGameActive(true);
+    } else {
+      // L'IA est vaincue, nouvelle phase post-battle (site sans IA)
+      setGamePhase('post-battle');
+      setGlitchIntensity(0);
+      setIsGameActive(false);
+    }
   };
 
   return (
@@ -84,6 +89,7 @@ function App() {
         
         <GameOverlay isActive={isGameActive} onClose={() => setIsGameActive(false)} />
         
+        {/* Only show AI overlay in normal phase */}
         {isGameActive && gamePhase === 'normal' && (
           <AIOverlay 
             isGameActive={isGameActive} 
@@ -136,7 +142,8 @@ function App() {
           <UndertaleBattle onBattleComplete={handleBattleComplete} />
         )}
         
-        {gamePhase !== 'blackout' && gamePhase !== 'dialogue' && gamePhase !== 'battle' && (
+        {/* Don't show glitch effects in special phases or post-battle */}
+        {gamePhase !== 'blackout' && gamePhase !== 'dialogue' && gamePhase !== 'battle' && gamePhase !== 'post-battle' && (
           <GlitchEffect intensity={glitchIntensity} />
         )}
       </div>
