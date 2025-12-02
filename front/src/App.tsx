@@ -16,6 +16,7 @@ function App() {
   const [isGameActive, setIsGameActive] = useState(false);
   const [glitchIntensity, setGlitchIntensity] = useState(0);
   const [gamePhase, setGamePhase] = useState<'normal' | 'blackout' | 'dialogue' | 'battle' | 'post-battle'>('normal');
+  const isDev = import.meta.env.DEV;
 
   const handleGameToggle = () => {
     setIsGameActive(!isGameActive);
@@ -24,6 +25,13 @@ function App() {
       setGlitchIntensity(0);
     } else {
       setGamePhase('normal');
+    }
+  };
+
+  const handlePhaseSkip = (phase: 'normal' | 'blackout' | 'dialogue' | 'battle') => {
+    setGamePhase(phase);
+    if (phase !== 'normal') {
+      setIsGameActive(true);
     }
   };
 
@@ -48,6 +56,30 @@ function App() {
           </Routes>
         </main>
         <Footer onGameToggle={handleGameToggle} />
+        
+        {/* Dev Phase Skip Controls */}
+        {isDev && (
+          <div style={{
+            position: 'fixed',
+            top: '10px',
+            right: '10px',
+            zIndex: 99999,
+            display: 'flex',
+            gap: '8px',
+            flexDirection: 'column',
+            background: 'rgba(0, 0, 0, 0.8)',
+            padding: '12px',
+            borderRadius: '8px',
+            border: '2px solid #00ff00',
+          }}>
+            <div style={{ color: '#00ff00', fontSize: '12px', fontWeight: 'bold', marginBottom: '4px' }}>DEV CONTROLS</div>
+            <button onClick={() => handlePhaseSkip('normal')} style={{ padding: '6px 12px', fontSize: '11px', background: '#333', color: '#fff', border: '1px solid #666', borderRadius: '4px', cursor: 'pointer' }}>Normal</button>
+            <button onClick={() => handlePhaseSkip('blackout')} style={{ padding: '6px 12px', fontSize: '11px', background: '#333', color: '#fff', border: '1px solid #666', borderRadius: '4px', cursor: 'pointer' }}>Blackout</button>
+            <button onClick={() => handlePhaseSkip('dialogue')} style={{ padding: '6px 12px', fontSize: '11px', background: '#333', color: '#fff', border: '1px solid #666', borderRadius: '4px', cursor: 'pointer' }}>Dialogue</button>
+            <button onClick={() => handlePhaseSkip('battle')} style={{ padding: '6px 12px', fontSize: '11px', background: '#333', color: '#fff', border: '1px solid #666', borderRadius: '4px', cursor: 'pointer' }}>Battle</button>
+            <div style={{ color: '#888', fontSize: '10px', marginTop: '4px' }}>Phase: {gamePhase}</div>
+          </div>
+        )}
         
         <GameOverlay isActive={isGameActive} onClose={() => setIsGameActive(false)} />
         
