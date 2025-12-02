@@ -452,9 +452,7 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
             <div 
               className={`player-heart ${isInvincible ? 'invincible' : ''}`}
               style={{ left: `${playerX}%`, top: `${playerY}%` }}
-            >
-              ❤
-            </div>
+            />
 
             {attacks.map(attack => (
               <div
