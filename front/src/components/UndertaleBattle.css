@@ -7,8 +7,10 @@
   background: #000000;
   z-index: 10003;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  padding: 2rem;
   animation: fadeIn 0.5s ease-in;
 }
 
@@ -21,29 +23,313 @@
   }
 }
 
+/* Boss Sprite Container */
+.boss-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.boss-sprite {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  animation: bossFloat 3s ease-in-out infinite;
+}
+
+@keyframes bossFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+/* Boss Head */
+.boss-head {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #4a4a4a 0%, #2a2a2a 100%);
+  border: 3px solid #ffffff;
+  border-radius: 10px;
+  position: relative;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.boss-eye {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #00ffff;
+  border-radius: 50%;
+  top: 25px;
+  box-shadow: 0 0 10px #00ffff;
+  animation: eyeGlow 2s ease-in-out infinite;
+}
+
+.boss-eye.left {
+  left: 18px;
+}
+
+.boss-eye.right {
+  right: 18px;
+}
+
+@keyframes eyeGlow {
+  0%, 100% {
+    box-shadow: 0 0 10px #00ffff;
+  }
+  50% {
+    box-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff;
+  }
+}
+
+.boss-mouth {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 3px;
+  background: #ffffff;
+}
+
+/* Boss Body */
+.boss-body {
+  width: 100px;
+  height: 80px;
+  background: linear-gradient(180deg, #3a3a3a 0%, #1a1a1a 100%);
+  border: 3px solid #ffffff;
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+.boss-chest {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background: #ff0000;
+  border-radius: 50%;
+  box-shadow: 0 0 15px #ff0000;
+  animation: coreGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes coreGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px #ff0000;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    box-shadow: 0 0 30px #ff0000, 0 0 40px #ff0000;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+/* Boss HP Bar */
+.boss-hp-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 300px;
+}
+
+.boss-name {
+  font-family: 'Determination Mono', 'Courier New', monospace;
+  font-size: 1.2rem;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.boss-hp-bar {
+  width: 100%;
+  height: 20px;
+  background: #8b0000;
+  border: 3px solid #ffffff;
+  position: relative;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.boss-hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ff00 0%, #ffff00 50%, #ff0000 100%);
+  transition: width 0.5s ease;
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+
+/* Battle UI Container */
 .battle-ui {
   width: 90%;
   max-width: 700px;
   color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Message Box */
+.battle-message-box {
+  background: #000000;
+  border: 4px solid #ffffff;
+  padding: 1.5rem 2rem;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
 
 .battle-message {
   font-family: 'Determination Mono', 'Courier New', monospace;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   color: #ffffff;
-  margin-bottom: 2rem;
+  margin: 0;
+  text-align: left;
+  letter-spacing: 1px;
+  line-height: 1.6;
+}
+
+/* Action Menu */
+.action-menu {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.action-button {
+  font-family: 'Determination Mono', 'Courier New', monospace;
+  font-size: 1.3rem;
+  color: #ffffff;
+  background: #000000;
+  border: 3px solid #ffffff;
+  padding: 1rem 1.5rem;
   text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
   letter-spacing: 1px;
 }
 
-.battle-stats {
-  margin-bottom: 2rem;
+.action-button.selected {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+}
+
+.action-button.spareable {
+  color: #ffff00;
+  border-color: #ffff00;
+  box-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
+  animation: sparePulse 1s ease-in-out infinite;
+}
+
+@keyframes sparePulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(255, 255, 0, 0.8);
+  }
+}
+
+
+/* Battle Box */
+.battle-box {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 450px;
+  max-height: 450px;
+  margin: 0 auto;
+  background: #000000;
+  border: 5px solid #ffffff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+/* Player Heart */
+.player-heart {
+  position: absolute;
+  font-size: 2rem;
+  color: #ff0000;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.9));
+  animation: heartBeat 0.6s ease-in-out infinite;
+  z-index: 10;
+}
+
+.player-heart.invincible {
+  animation: invincibleFlash 0.1s ease-in-out infinite;
+}
+
+@keyframes heartBeat {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+
+@keyframes invincibleFlash {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Attack Projectiles */
+.attack-projectile {
+  position: absolute;
+  background: #ffffff;
+  pointer-events: none;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+}
+
+/* Player Stats */
+.player-stats {
+  background: #000000;
+  border: 4px solid #ffffff;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
 }
 
 .player-name {
   font-family: 'Determination Mono', 'Courier New', monospace;
   font-size: 1.2rem;
-  margin-bottom: 0.5rem;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.player-lv {
+  font-family: 'Determination Mono', 'Courier New', monospace;
+  font-size: 1rem;
+  color: #ffff00;
 }
 
 .hp-bar {
@@ -54,112 +340,127 @@
 
 .hp-label {
   font-family: 'Determination Mono', 'Courier New', monospace;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   color: #ff0000;
+  font-weight: bold;
 }
 
 .hp-container {
   flex: 1;
   height: 24px;
   background: #8b0000;
-  border: 2px solid #ffffff;
+  border: 3px solid #ffffff;
   position: relative;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
 .hp-fill {
   height: 100%;
   background: #ffff00;
   transition: width 0.3s ease;
+  box-shadow: inset 0 0 10px rgba(255, 255, 0, 0.5);
 }
 
 .hp-text {
   font-family: 'Determination Mono', 'Courier New', monospace;
-  font-size: 1rem;
-  min-width: 80px;
+  font-size: 1.1rem;
+  min-width: 90px;
+  color: #ffffff;
 }
 
-.battle-box {
-  width: 100%;
-  aspect-ratio: 1;
-  max-width: 500px;
-  max-height: 500px;
-  margin: 0 auto;
-  background: #000000;
-  border: 5px solid #ffffff;
-  position: relative;
-  overflow: hidden;
-}
 
-.player-heart {
-  position: absolute;
-  font-size: 2rem;
-  color: #ff0000;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8));
-  animation: heartBeat 0.5s ease-in-out infinite;
-}
-
-@keyframes heartBeat {
-  0%, 100% {
-    transform: translate(-50%, -50%) scale(1);
-  }
-  50% {
-    transform: translate(-50%, -50%) scale(1.1);
-  }
-}
-
-.attack-bone {
-  position: absolute;
-  width: 20px;
-  height: 60px;
-  background: #ffffff;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-}
-
-.victory-message {
-  text-align: center;
-  margin-top: 2rem;
-  animation: victoryPulse 1s ease-in-out infinite;
-}
-
-.victory-message p {
-  font-family: 'Determination Mono', 'Courier New', monospace;
-  font-size: 3rem;
-  color: #ffff00;
-  margin: 0;
-  text-shadow: 
-    0 0 20px rgba(255, 255, 0, 0.8),
-    0 0 40px rgba(255, 255, 0, 0.5);
-}
-
-@keyframes victoryPulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
+/* Responsive Design */
 @media (max-width: 768px) {
+  .undertale-battle {
+    padding: 1rem;
+  }
+
+  .boss-sprite {
+    width: 150px;
+    height: 150px;
+  }
+
+  .boss-head {
+    width: 60px;
+    height: 60px;
+  }
+
+  .boss-eye {
+    width: 10px;
+    height: 10px;
+    top: 18px;
+  }
+
+  .boss-eye.left {
+    left: 12px;
+  }
+
+  .boss-eye.right {
+    right: 12px;
+  }
+
+  .boss-body {
+    width: 75px;
+    height: 60px;
+  }
+
+  .boss-hp-container {
+    width: 250px;
+  }
+
+  .boss-name {
+    font-size: 1rem;
+  }
+
   .battle-message {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+  }
+
+  .battle-message-box {
+    padding: 1rem 1.5rem;
+    min-height: 60px;
+  }
+
+  .action-menu {
+    gap: 0.75rem;
+  }
+
+  .action-button {
+    font-size: 1.1rem;
+    padding: 0.75rem 1rem;
   }
 
   .battle-box {
-    max-width: 90vw;
-    max-height: 90vw;
+    max-width: 85vw;
+    max-height: 85vw;
   }
 
   .player-heart {
     font-size: 1.5rem;
   }
 
-  .attack-bone {
-    width: 15px;
-    height: 45px;
+  .player-stats {
+    padding: 0.75rem 1rem;
+  }
+
+  .player-name {
+    font-size: 1rem;
+  }
+
+  .player-lv {
+    font-size: 0.9rem;
+  }
+
+  .hp-label {
+    font-size: 1.1rem;
+  }
+
+  .hp-container {
+    height: 20px;
+  }
+
+  .hp-text {
+    font-size: 0.95rem;
+    min-width: 75px;
   }
 }
