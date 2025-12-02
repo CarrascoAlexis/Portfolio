@@ -11,6 +11,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 2rem;
+  box-sizing: border-box;
+  overflow: auto; /* allow safe scrolling if viewport is small */
   animation: fadeIn 0.5s ease-in;
 }
 
@@ -33,8 +35,9 @@
 }
 
 .boss-sprite {
-  width: 200px;
-  height: 200px;
+  /* Reduced ~20% from previous 600px -> 480px, and constrained to viewport */
+  width: min(480px, 90vw, 45vh);
+  height: min(480px, 90vw, 45vh);
   background: url('/src/assets/robot_asset.png') center center no-repeat;
   background-size: contain;
   display: flex;
@@ -462,8 +465,9 @@
   }
 
   .boss-sprite {
-    width: 150px;
-    height: 150px;
+    /* Mobile: reduced ~20% from 450 -> 360 and constrained to viewport */
+    width: min(360px, 80vw, 40vh);
+    height: min(360px, 80vw, 40vh);
     background-size: contain;
   }
 
