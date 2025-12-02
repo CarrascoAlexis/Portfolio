@@ -1,10 +1,54 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './AIOverlay.css';
 
 interface AIOverlayProps {
   isGameActive: boolean;
   onGlitchIntensityChange: (intensity: number) => void;
 }
+
+// Keyboard typing sounds using Web Audio API
+const createKeyboardSound = (audioContext: AudioContext, angerLevel: number) => {
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  
+  // Base frequency with variation
+  const baseFreq = 800 + Math.random() * 400;
+  oscillator.frequency.value = baseFreq;
+  
+  // Different waveforms based on anger level
+  if (angerLevel >= 4) {
+    oscillator.type = 'sawtooth'; // Harsh sound when angry
+  } else if (angerLevel >= 2) {
+    oscillator.type = 'square';
+  } else {
+    oscillator.type = 'sine'; // Soft sound when calm
+  }
+  
+  // Volume increases with anger
+  const volume = 0.02 + (angerLevel * 0.01);
+  gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  
+  oscillator.start();
+  oscillator.stop(audioContext.currentTime + 0.1);
+  
+  // Add distortion for higher anger levels
+  if (angerLevel >= 3 && Math.random() > 0.7) {
+    const glitchOsc = audioContext.createOscillator();
+    const glitchGain = audioContext.createGain();
+    glitchOsc.frequency.value = baseFreq * (0.5 + Math.random());
+    glitchOsc.type = 'sawtooth';
+    glitchGain.gain.setValueAtTime(volume * 0.5, audioContext.currentTime);
+    glitchGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.05);
+    glitchOsc.connect(glitchGain);
+    glitchGain.connect(audioContext.destination);
+    glitchOsc.start();
+    glitchOsc.stop(audioContext.currentTime + 0.05);
+  }
+};
 
 const AI_PHRASES = [
   // Phase 1: Friendly (0-30s)
@@ -41,6 +85,21 @@ export default function AIOverlay({ isGameActive, onGlitchIntensityChange }: AIO
   const [gameStartTime, setGameStartTime] = useState<number | null>(null);
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [angerLevel, setAngerLevel] = useState(0); // 0-5
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  // Initialize audio context
+  useEffect(() => {
+    if (isGameActive && !audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    
+    return () => {
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+        audioContextRef.current = null;
+      }
+    };
+  }, [isGameActive]);
 
   useEffect(() => {
     if (!isGameActive) {
@@ -67,6 +126,7 @@ export default function AIOverlay({ isGameActive, onGlitchIntensityChange }: AIO
   // Track time elapsed
   useEffect(() => {
     if (!isGameActive || !gameStartTime) return;
+    timeElapsed;
 
     const interval = setInterval(() => {
       const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
@@ -99,6 +159,20 @@ export default function AIOverlay({ isGameActive, onGlitchIntensityChange }: AIO
       const typingSpeed = angerLevel > 3 ? 20 : 50 + Math.random() * 50;
       const timeout = setTimeout(() => {
         setDisplayedText(phrase.slice(0, displayedText.length + 1));
+        
+        // Play keyboard sound with chaos based on anger level
+        if (audioContextRef.current && audioContextRef.current.state === 'running') {
+          createKeyboardSound(audioContextRef.current, angerLevel);
+          
+          // Extra chaotic sounds at high anger levels
+          if (angerLevel >= 4 && Math.random() > 0.6) {
+            setTimeout(() => {
+              if (audioContextRef.current && audioContextRef.current.state === 'running') {
+                createKeyboardSound(audioContextRef.current, angerLevel);
+              }
+            }, 10 + Math.random() * 20);
+          }
+        }
       }, typingSpeed);
 
       return () => clearTimeout(timeout);
