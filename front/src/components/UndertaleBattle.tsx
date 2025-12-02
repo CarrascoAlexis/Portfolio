@@ -280,7 +280,7 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
       const deltaTime = (currentTime - lastTime) / 16.67; // Normalize to 60fps
       lastTime = currentTime;
       
-      const speed = 1.8; // Reduced from 2.5 for slower movement
+      const speed = 1.44; // Reduced by 20% from 1.8
       
       if (keysPressed.current.has('ArrowLeft')) {
         setPlayerX(prev => Math.max(5, prev - speed * deltaTime));
