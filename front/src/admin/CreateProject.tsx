@@ -5,7 +5,7 @@ export default function CreateProject() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [images, setImages] = useState<string[]>([]);
-  const [gallery, setGallery] = useState<string[]>([]);
+  const [gallery, setGallery] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
 
@@ -72,15 +72,20 @@ export default function CreateProject() {
           <div style={{ marginBottom: 8 }}>Galerie (choisir des images)</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {gallery.length === 0 && <div>Aucune image trouvée</div>}
-            {gallery.map((img: string) => (
-              <div key={img} style={{ width: 120, border: images.includes(img) ? '3px solid #00a' : '1px solid #ddd', padding: 4, borderRadius: 6 }}>
-                <img src={img} alt="img" style={{ width: '100%', height: 80, objectFit: 'cover', borderRadius: 4 }} />
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-                  <small style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{img.split('/').pop()}</small>
-                  <button type="button" onClick={() => toggleImage(img)} style={{ fontSize: 12 }}>{images.includes(img) ? 'Retirer' : 'Ajouter'}</button>
+            {gallery.map((img: any) => {
+              const src = typeof img === 'string' ? img : (img.url || img.path || (img.filename ? `/uploads/${img.filename}` : ''));
+              const label = typeof img === 'string' ? img.split('/').pop() : (img.originalname || img.filename || (src ? src.split('/').pop() : 'image'));
+              const selected = src && images.includes(src);
+              return (
+                <div key={src || label} style={{ width: 120, border: selected ? '3px solid #00a' : '1px solid #ddd', padding: 4, borderRadius: 6 }}>
+                  <img src={src} alt="img" style={{ width: '100%', height: 80, objectFit: 'cover', borderRadius: 4 }} />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
+                    <small style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</small>
+                    <button type="button" onClick={() => toggleImage(src)} style={{ fontSize: 12 }}>{selected ? 'Retirer' : 'Ajouter'}</button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
