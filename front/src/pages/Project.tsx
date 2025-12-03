@@ -112,19 +112,25 @@ export default function Project() {
 
       <div style={{ margin: '12px 0' }}>
         <strong>Galerie:</strong>
-        <div className="projects-grid" style={{ marginTop: 8 }}>
-          {images.length === 0 && <p className="muted">Aucune image pour ce projet.</p>}
-          {images.map((img: any) => (
-            <div key={img.filename} className="project-card" style={{ maxWidth: 220 }}>
-              <div className="project-image">
-                <img src={img.url.startsWith('/') ? `http://localhost:4000${img.url}` : img.url} alt={img.originalname} style={{ width: '100%', height: 'auto', display: 'block' }} />
+        {images.length === 0 ? (
+          <p className="muted">Aucune image pour ce projet.</p>
+        ) : (
+          <div className="project-gallery" style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+            {images.map((img: any) => (
+              <div key={img.filename} className="gallery-item" style={{ border: '2px solid var(--line-color)', overflow: 'hidden', transition: 'all var(--transition-normal)', cursor: 'pointer' }}>
+                <div style={{ aspectRatio: '16/9', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
+                  <img 
+                    src={img.url.startsWith('/') ? `http://localhost:4000${img.url}` : img.url} 
+                    alt={img.originalname} 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform var(--transition-normal)' }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                  />
+                </div>
               </div>
-              <div className="project-content" style={{ padding: '6px' }}>
-                <div style={{ fontSize: 12 }}>{img.originalname}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div style={{ margin: '12px 0' }}>

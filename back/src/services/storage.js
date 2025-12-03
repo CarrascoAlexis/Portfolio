@@ -233,5 +233,41 @@ module.exports = {
       memory.images[k] = (memory.images[k] || []).filter(i => i.filename !== filename);
     });
     return true;
+  },
+
+  updateImageMetadata: async (filename, updates) => {
+    if (!filename) return false;
+    if (redisClient) {
+      const keys = await redisClient.keys('images:*');
+      for (const k of keys) {
+        const vals = await redisClient.lrange(k, 0, 499);
+        const items = vals.map(v => JSON.parse(v));
+        const found = items.find(i => i.filename === filename);
+        if (found) {
+          Object.assign(found, updates);
+          // remove from old location
+          await redisClient.del(k);
+          // re-add to correct location if project changed
+          const newKey = `images:${updates.project || 'global'}`;
+          await redisClient.lpush(newKey, JSON.stringify(found));
+        }
+      }
+      return true;
+    }
+    // In-memory: find and update across all keys
+    Object.keys(memory.images).forEach(k => {
+      const found = (memory.images[k] || []).find(i => i.filename === filename);
+      if (found) {
+        Object.assign(found, updates);
+        // if project changed, move to correct key
+        if (updates.project !== undefined) {
+          memory.images[k] = (memory.images[k] || []).filter(i => i.filename !== filename);
+          const newKey = updates.project || 'global';
+          memory.images[newKey] = memory.images[newKey] || [];
+          memory.images[newKey].unshift(found);
+        }
+      }
+    });
+    return true;
   }
 };

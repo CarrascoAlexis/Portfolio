@@ -59,6 +59,18 @@ router.delete('/images/:filename', requireAdmin, async (req, res) => {
   }
 });
 
+router.put('/images/:filename', requireAdmin, async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const { project } = req.body || {};
+    await storage.updateImageMetadata(filename, { project: project || null });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('admin update image error', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // admin: set visibility for a project (key should be 'github:owner/repo' or 'manual:<id>')
 router.post('/visibility', requireAdmin, async (req, res) => {
   try {

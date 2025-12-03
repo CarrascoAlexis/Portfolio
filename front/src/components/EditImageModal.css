@@ -1,0 +1,82 @@
+.edit-image-modal .modal-body {
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.image-preview-large {
+  width: 100%;
+  max-height: 400px;
+  overflow: hidden;
+  background: var(--bg-secondary);
+  border: 2px solid var(--line-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-preview-large img {
+  max-width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  display: block;
+}
+
+.edit-image-modal .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.edit-image-modal .form-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.edit-image-modal select {
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border: 2px solid var(--line-color);
+  color: var(--text-primary);
+  font-family: var(--font-primary);
+  font-size: 0.875rem;
+  transition: all var(--transition-fast);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+.edit-image-modal select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  background-color: var(--bg-primary);
+}
+
+.edit-image-modal .info-box {
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  border-left: 3px solid var(--accent-primary);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.edit-image-modal .info-box p {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+
+.edit-image-modal .info-box strong {
+  color: var(--text-primary);
+}

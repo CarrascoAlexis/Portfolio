@@ -1,67 +1,207 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import EditImageModal from '../components/EditImageModal';
+import './ImagesAdmin.css';
 
 export default function AdminImages() {
   const [images, setImages] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [uploadMode, setUploadMode] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [project, setProject] = useState('');
+  const [selectedProject, setSelectedProject] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [editingImage, setEditingImage] = useState<any | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   async function load() {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:4000/api/admin/images', { credentials: 'include' });
-      if (!res.ok) throw new Error('Failed');
-      const b = await res.json();
-      setImages(b.images || []);
-    } catch (e) { console.error(e); } finally { setLoading(false); }
+      const [imgRes, projRes] = await Promise.all([
+        fetch('http://localhost:4000/api/admin/images', { credentials: 'include' }),
+        fetch('http://localhost:4000/api/projects')
+      ]);
+
+      if (imgRes.ok) {
+        const b = await imgRes.json();
+        setImages(b.images || []);
+      }
+
+      if (projRes.ok) {
+        const pb = await projRes.json();
+        setProjects(pb.projects || []);
+      }
+    } catch (e) { 
+      console.error(e); 
+    } finally { 
+      setLoading(false); 
+    }
   }
 
   useEffect(() => { load(); }, []);
 
   async function upload(e: any) {
     e.preventDefault();
-    if (!file) return alert('Choose a file');
+    if (!file) return alert('Sélectionnez un fichier');
+    setUploading(true);
     const fd = new FormData();
-    fd.append('file', file as File);
-    if (project) fd.append('project', project);
+    fd.append('file', file);
+    if (selectedProject) fd.append('project', selectedProject);
+    
     try {
-      const res = await fetch('http://localhost:4000/api/images', { method: 'POST', credentials: 'include', body: fd });
+      const res = await fetch('http://localhost:4000/api/images', { 
+        method: 'POST', 
+        credentials: 'include', 
+        body: fd 
+      });
       if (!res.ok) throw new Error('Upload failed');
       await load();
-      setFile(null); setProject('');
-    } catch (err) { console.error(err); }
+      setFile(null); 
+      setSelectedProject('');
+      setUploadMode(false);
+    } catch (err) { 
+      console.error(err);
+      alert('Erreur lors de l\'upload');
+    } finally {
+      setUploading(false);
+    }
   }
 
-  async function remove(filename: string) {
+  function openEdit(img: any) {
+    setEditingImage(img);
+    setModalOpen(true);
+  }
+
+  function closeEdit() {
+    setModalOpen(false);
+    setEditingImage(null);
+  }
+
+  async function handleSave() {
+    await load();
+    closeEdit();
+  }
+
+  async function handleDelete(filename: string) {
     if (!confirm('Supprimer cette image ?')) return;
     try {
-      const res = await fetch(`http://localhost:4000/api/admin/images/${encodeURIComponent(filename)}`, { method: 'DELETE', credentials: 'include' });
-      if (!res.ok) throw new Error('Delete failed');
-      await load();
-    } catch (e) { console.error(e); }
+      const res = await fetch(`http://localhost:4000/api/admin/images/${encodeURIComponent(filename)}`, { 
+        method: 'DELETE', 
+        credentials: 'include' 
+      });
+      if (res.ok) {
+        await load();
+        closeEdit();
+      } else {
+        alert('Erreur lors de la suppression');
+      }
+    } catch (e) { 
+      console.error(e);
+      alert('Erreur réseau');
+    }
   }
 
   return (
-    <div className="container">
-      <h2>Images</h2>
-      <form onSubmit={upload} style={{ marginBottom: 12 }}>
-        <input type="file" onChange={e => setFile(e.target.files ? e.target.files[0] : null)} />
-        <input placeholder="Project (owner/repo)" value={project} onChange={e => setProject(e.target.value)} />
-        <button className="btn" type="submit">Upload</button>
-      </form>
-      {loading && <p>Chargement…</p>}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
+    <div className="container admin-images">
+      <div className="admin-header">
+        <div>
+          <div className="hero-badge">
+            <span className="badge-dot"></span>
+            GESTION IMAGES
+          </div>
+          <h1 className="hero-title">Images</h1>
+          <p className="hero-subtitle">Téléversez et gérez les images de vos projets.</p>
+        </div>
+        <div className="hero-actions">
+          <button 
+            className="btn btn-primary" 
+            onClick={() => setUploadMode(!uploadMode)}
+          >
+            {uploadMode ? 'Annuler' : 'Ajouter une image'}
+          </button>
+          <Link to="/admin"><button className="btn btn-secondary">Retour dashboard</button></Link>
+        </div>
+      </div>
+
+      {uploadMode && (
+        <div className="upload-section">
+          <form onSubmit={upload} className="upload-form">
+            <div className="form-group">
+              <label>Fichier image</label>
+              <input 
+                type="file" 
+                accept="image/*"
+                onChange={e => setFile(e.target.files ? e.target.files[0] : null)}
+                disabled={uploading}
+              />
+            </div>
+            <div className="form-group">
+              <label>Lier à un projet (optionnel)</label>
+              <select 
+                value={selectedProject} 
+                onChange={e => setSelectedProject(e.target.value)}
+                disabled={uploading}
+              >
+                <option value="">Aucun projet</option>
+                {projects.map(p => {
+                  const key = p.full_name || `manual:${p.id}`;
+                  const label = p.name || p.title || p.full_name;
+                  return <option key={key} value={key}>{label}</option>;
+                })}
+              </select>
+            </div>
+            <button type="submit" className="btn btn-primary" disabled={uploading || !file}>
+              {uploading ? 'Upload...' : 'Téléverser'}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {loading && <div className="loading-state">Chargement des images…</div>}
+
+      {!loading && images.length === 0 && (
+        <div className="empty-state">
+          <p>Aucune image disponible.</p>
+          <button className="btn btn-primary" onClick={() => setUploadMode(true)}>
+            Ajouter votre première image
+          </button>
+        </div>
+      )}
+
+      <div className="images-grid">
         {images.map(img => (
-          <div key={img.filename} style={{ border: '1px solid #ddd', padding: 8 }}>
-            <img src={img.url.startsWith('/') ? `http://localhost:4000${img.url}` : img.url} alt={img.originalname} style={{ width: '100%', height: 'auto' }} />
-            <div style={{ marginTop: 6 }}>
-              <div style={{ fontSize: 12 }}>{img.originalname}</div>
-              <div style={{ fontSize: 11, color: '#666' }}>{img.project || '—'}</div>
-              <button onClick={() => remove(img.filename)} style={{ marginTop: 6 }}>Supprimer</button>
+          <div 
+            key={img.filename} 
+            className="image-card"
+            onClick={() => openEdit(img)}
+          >
+            <div className="image-preview">
+              <img 
+                src={img.url.startsWith('/') ? `http://localhost:4000${img.url}` : img.url} 
+                alt={img.originalname} 
+              />
+            </div>
+            <div className="image-info">
+              <div className="image-name">{img.originalname}</div>
+              {img.project && (
+                <div className="image-project">
+                  <span className="badge badge-project">{img.project}</span>
+                </div>
+              )}
             </div>
           </div>
         ))}
       </div>
+
+      {modalOpen && editingImage && (
+        <EditImageModal
+          image={editingImage}
+          projects={projects}
+          onClose={closeEdit}
+          onSave={handleSave}
+          onDelete={handleDelete}
+        />
+      )}
     </div>
   );
 }
