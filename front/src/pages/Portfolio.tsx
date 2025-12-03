@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import ProjectModal from '../components/ProjectModal';
 import './Portfolio.css';
 
 const categories = ['all', 'web', 'mobile', 'dashboard'];
@@ -76,24 +77,22 @@ export default function Portfolio() {
   const [modalVisibility, setModalVisibility] = useState<boolean | null>(null);
   const [modalBusy, setModalBusy] = useState(false);
 
-  function openModal(project: any) {
+  async function openModal(project: any) {
     setModalProject(project);
     setModalVisible(true);
     // determine visibility key
-    (async () => {
-      try {
-        const key = project._source === 'github' ? `github:${project.full_name}` : `manual:${project.id}`;
-        const res = await fetch(`http://localhost:4000/api/projects/visibility?project=${encodeURIComponent(key)}`);
-        if (!res.ok) {
-          setModalVisibility(null);
-          return;
-        }
-        const b = await res.json();
-        setModalVisibility(b.hasOwnProperty('visible') ? b.visible : null);
-      } catch (e) {
+    try {
+      const key = project._source === 'github' ? `github:${project.full_name}` : `manual:${project.id}`;
+      const res = await fetch(`http://localhost:4000/api/projects/visibility?project=${encodeURIComponent(key)}`);
+      if (!res.ok) {
         setModalVisibility(null);
+        return;
       }
-    })();
+      const b = await res.json();
+      setModalVisibility(b.hasOwnProperty('visible') ? b.visible : null);
+    } catch (e) {
+      setModalVisibility(null);
+    }
   }
 
   function closeModal() {
@@ -179,24 +178,14 @@ export default function Portfolio() {
           </div>
 
           {/* Modal */}
-          {modalProject && (
-            <div className="modal-backdrop" onClick={() => { setModalProject(null); setModalVisibility(null); }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10010, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div className="modal" onClick={e => e.stopPropagation()} style={{ background: '#fff', padding: 20, maxWidth: 720, width: '90%', borderRadius: 8 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3>{modalProject.title}</h3>
-                  <button onClick={() => { setModalProject(null); setModalVisibility(null); }}>✕</button>
-                </div>
-                <p>{modalProject.description}</p>
-                <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
-                  {modalProject.url && <a className="btn" href={modalProject.url} target="_blank" rel="noreferrer">Voir le repo / live</a>}
-                  <div style={{ marginLeft: 'auto' }}>
-                    <span style={{ marginRight: 8 }}>Visible on site:</span>
-                    <button className="btn" onClick={toggleVisibility} disabled={modalBusy}>{modalVisibility === true ? 'Oui' : 'Non'}</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          <ProjectModal
+            project={modalProject}
+            visible={!!modalVisible}
+            onClose={closeModal}
+            onToggleVisibility={toggleVisibility}
+            visibility={modalVisibility}
+            busy={modalBusy}
+          />
         </div>
       </section>
     </div>

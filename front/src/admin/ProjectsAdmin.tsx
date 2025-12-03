@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import ProjectModal from '../components/ProjectModal';
 
 type Project = any;
 
@@ -9,6 +10,11 @@ export default function AdminProjects() {
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [visMap, setVisMap] = useState<Record<string, boolean>>({});
+
+  const [modalProject, setModalProject] = useState<any | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisibility, setModalVisibility] = useState<boolean | null>(null);
+  const [modalBusy, setModalBusy] = useState(false);
 
   async function loadAll() {
     setLoading(true);
@@ -87,6 +93,31 @@ export default function AdminProjects() {
     }
   }
 
+  function openAdminModal(project: any) {
+    setModalProject(project);
+    setModalVisible(true);
+    (async () => {
+      try {
+        const key = project._source === 'github' ? `github:${project.full_name}` : `manual:${project.id}`;
+        const res = await fetch(`http://localhost:4000/api/projects/visibility?project=${encodeURIComponent(key)}`);
+        if (!res.ok) {
+          setModalVisibility(null);
+          return;
+        }
+        const b = await res.json();
+        setModalVisibility(b.hasOwnProperty('visible') ? b.visible : null);
+      } catch (e) {
+        setModalVisibility(null);
+      }
+    })();
+  }
+
+  function closeAdminModal() {
+    setModalVisible(false);
+    setModalProject(null);
+    setModalVisibility(null);
+  }
+
   const combined = [
     ...manualProjects.map(p => ({ ...p, _displayTitle: p.name || p.title || `manual-${p.id}` })),
     ...githubProjects.map(p => ({ ...p, _displayTitle: p.name || p.title || p.full_name }))
@@ -120,7 +151,9 @@ export default function AdminProjects() {
             const visible = visMap.hasOwnProperty(key) ? !!visMap[key] : false;
             return (
               <tr key={key} style={{ borderTop: '1px solid #eee' }}>
-                <td style={{ padding: '8px 6px' }}>{p._displayTitle}</td>
+                <td style={{ padding: '8px 6px' }}>
+                  <a href="#" onClick={e => { e.preventDefault(); openAdminModal(p); }}>{p._displayTitle}</a>
+                </td>
                 <td style={{ textAlign: 'center' }}>{p._source}</td>
                 <td style={{ textAlign: 'center' }}>{visible ? 'Oui' : 'Non'}</td>
                 <td style={{ textAlign: 'center' }}>
@@ -132,6 +165,26 @@ export default function AdminProjects() {
           })}
         </tbody>
       </table>
+
+      <ProjectModal
+        project={modalProject}
+        visible={!!modalVisible}
+        onClose={closeAdminModal}
+        onToggleVisibility={async () => {
+          if (!modalProject) return;
+          const key = modalProject._source === 'github' ? `github:${modalProject.full_name}` : `manual:${modalProject.id}`;
+          await toggleVisibility(key);
+          // refresh visMap and modal visibility
+          const vis = await fetch('http://localhost:4000/api/projects/visibility');
+          if (vis.ok) {
+            const bv = await vis.json();
+            setVisMap(bv.visibility || {});
+            setModalVisibility(bv.visibility ? bv.visibility[key] : null);
+          }
+        }}
+        visibility={modalVisibility}
+        busy={modalBusy}
+      />
     </div>
   );
 }
