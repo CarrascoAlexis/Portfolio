@@ -6,7 +6,9 @@ async function list(req, res) {
   const user = req.query.user || config.githubUsername;
   const force = req.query.refresh === '1' || req.query.force === '1';
   const visibleOnly = req.query.visible === '1' || req.query.visible === 'true';
-  if (!user) return res.status(400).json({ ok: false, error: 'GitHub username not provided (query ?user= or GITHUB_USERNAME env)' });
+  if (!user) {
+    console.warn('projectController.list: no GitHub username configured, skipping GitHub repos');
+  }
 
   try {
     // fetch GitHub repos (cached when possible)
@@ -56,11 +58,11 @@ async function list(req, res) {
       const vis = await storage.getProjectVisibility(key);
       const visible = vis === null ? true : !!vis; // default visible when not set
       if (visibleOnly && !visible) continue;
-      
+
       // Get custom tags (or use project's own tags for manual projects)
       const customTags = await storage.getProjectTags(key);
       const tags = customTags || (p._raw?.tags) || [];
-      
+
       result.push({ ...p, visible, tags });
     }
 

@@ -306,6 +306,44 @@ async function getGame(id) {
 }
 
 // ====================
+// Contact Messages
+// ====================
+
+function saveContactMessage(contact) {
+  const id = contact.id || uuidv4();
+  
+  const stmt = db.prepare(`
+    INSERT INTO contact_messages (id, name, email, subject, message, timestamp)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `);
+  
+  stmt.run(
+    id,
+    contact.name,
+    contact.email,
+    contact.subject || '',
+    contact.message,
+    contact.timestamp || new Date().toISOString()
+  );
+  
+  return { id, ...contact };
+}
+
+function getContactMessages() {
+  const stmt = db.prepare('SELECT * FROM contact_messages ORDER BY timestamp DESC LIMIT 100');
+  const rows = stmt.all();
+  
+  return rows.map(row => ({
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    subject: row.subject,
+    message: row.message,
+    timestamp: row.timestamp
+  }));
+}
+
+// ====================
 // Exports
 // ====================
 
@@ -342,5 +380,9 @@ module.exports = {
   saveMessage,
   getMessages,
   saveGame,
-  getGame
+  getGame,
+  
+  // Contact messages
+  saveContactMessage: async (contact) => saveContactMessage(contact),
+  getContactMessages: async () => getContactMessages()
 };

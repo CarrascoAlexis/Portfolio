@@ -1,3 +1,8 @@
 {
-  "GITHUB_USERNAME": "CarrascoAlexis"
+  "GITHUB_USERNAME": "CarrascoAlexis",
+  "GITHUB_TOKEN": "your-github-token-optional",
+  "EMAIL_SERVICE": "gmail",
+  "EMAIL_USER": "your-email@gmail.com",
+  "EMAIL_PASSWORD": "your-app-password",
+  "CONTACT_EMAIL": "email-to-receive-contacts@example.com"
 }

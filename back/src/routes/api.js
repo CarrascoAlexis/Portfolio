@@ -2,6 +2,7 @@ const { Router } = require('express');
 const messageController = require('../controllers/messageController');
 const projectController = require('../controllers/projectController');
 const imageController = require('../controllers/imageController');
+const contactController = require('../controllers/contactController');
 
 const router = Router();
 
@@ -40,6 +41,10 @@ router.get('/projects/visibility', async (req, res) => {
 // images
 router.post('/images', imageController.uploadMiddleware, imageController.uploadImage);
 router.get('/images', imageController.listImages);
+
+// contact form
+router.post('/contact', contactController.sendContact);
+router.get('/contact', contactController.listContacts);
 
 // Note: admin routes are mounted in routes/admin.js (under /api/admin)
 

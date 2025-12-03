@@ -56,10 +56,21 @@ function initDatabase() {
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
 
+    -- Contact messages table
+    CREATE TABLE IF NOT EXISTS contact_messages (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      subject TEXT,
+      message TEXT NOT NULL,
+      timestamp TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
     -- Create indexes for better query performance
     CREATE INDEX IF NOT EXISTS idx_images_project ON images(project);
     CREATE INDEX IF NOT EXISTS idx_images_is_primary ON images(is_primary);
     CREATE INDEX IF NOT EXISTS idx_project_visibility ON project_visibility(visible);
+    CREATE INDEX IF NOT EXISTS idx_contact_timestamp ON contact_messages(timestamp DESC);
   `);
 
   console.log('✓ SQLite database initialized at:', dbPath);

@@ -315,5 +315,31 @@ module.exports = {
     const imgs = memory.images[project] || [];
     imgs.forEach(img => { img.isPrimary = false; });
     return true;
+  },
+
+  // Contact messages
+  saveContactMessage: async (contact) => {
+    const id = contact.id || uuidv4();
+    const entry = { id, ...contact };
+    if (redisClient) {
+      const key = 'contact_messages';
+      await redisClient.lpush(key, JSON.stringify(entry));
+      await redisClient.ltrim(key, 0, 499);
+      return entry;
+    }
+    memory.contactMessages = memory.contactMessages || [];
+    memory.contactMessages.unshift(entry);
+    memory.contactMessages = memory.contactMessages.slice(0, 500);
+    return entry;
+  },
+
+  getContactMessages: async () => {
+    if (redisClient) {
+      const key = 'contact_messages';
+      const vals = await redisClient.lrange(key, 0, 99);
+      return vals.map(v => JSON.parse(v)).reverse();
+    }
+    memory.contactMessages = memory.contactMessages || [];
+    return memory.contactMessages.slice(0, 100).reverse();
   }
 };
