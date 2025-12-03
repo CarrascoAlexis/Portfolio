@@ -49,14 +49,19 @@ async function list(req, res) {
 
     const all = [...manualProjects, ...ghProjects];
 
-    // resolve visibility for each project (default: visible)
+    // resolve visibility and tags for each project (default: visible)
     const result = [];
     for (const p of all) {
       const key = p._source === 'github' ? `github:${p.full_name}` : `manual:${p.id}`;
       const vis = await storage.getProjectVisibility(key);
       const visible = vis === null ? true : !!vis; // default visible when not set
       if (visibleOnly && !visible) continue;
-      result.push({ ...p, visible });
+      
+      // Get custom tags (or use project's own tags for manual projects)
+      const customTags = await storage.getProjectTags(key);
+      const tags = customTags || (p._raw?.tags) || [];
+      
+      result.push({ ...p, visible, tags });
     }
 
     res.json({ ok: true, source: 'combined', projects: result });
