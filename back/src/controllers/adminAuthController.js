@@ -22,8 +22,14 @@ async function login(req, res) {
   if (!valid) return res.status(401).json({ ok: false, error: 'Invalid credentials' });
 
   const token = jwt.sign({ username: ADMIN_USER, role: 'admin' }, SECRET, { expiresIn: '8h' });
-  // set httpOnly cookie
-  res.cookie('token', token, { httpOnly: true, sameSite: 'lax' });
+  // set httpOnly cookie with SameSite=None for cross-origin requests
+  // Note: SameSite=None requires Secure flag, but for local dev we allow it without HTTPS
+  const isProduction = process.env.NODE_ENV === 'production';
+  res.cookie('token', token, { 
+    httpOnly: true, 
+    sameSite: 'none',
+    secure: isProduction // true in production (requires HTTPS), false in dev
+  });
   res.json({ ok: true, user: { username: ADMIN_USER } });
 }
 
@@ -34,7 +40,11 @@ function me(req, res) {
 }
 
 function logout(req, res) {
-  res.clearCookie('token');
+  const isProduction = process.env.NODE_ENV === 'production';
+  res.clearCookie('token', { 
+    sameSite: 'none',
+    secure: isProduction 
+  });
   res.json({ ok: true });
 }
 
