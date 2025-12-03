@@ -116,10 +116,9 @@ export default function Portfolio() {
                     ))}
                   </div>
                   <div className="project-links">
-                    {project.url ? (
-                      <a className="project-link" href={project.url} target="_blank" rel="noreferrer">Voir sur GitHub / Live →</a>
-                    ) : (
-                      <span className="project-link muted">Infos →</span>
+                    <Link className="project-link" to={`/projects/${encodeURIComponent(project.title)}`}>Voir le projet →</Link>
+                    {project.url && (
+                      <a className="project-link" href={project.url} target="_blank" rel="noreferrer" style={{ marginLeft: 8 }}>Voir sur GitHub / Live</a>
                     )}
                   </div>
                 </div>
