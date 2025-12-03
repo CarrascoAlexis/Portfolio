@@ -120,7 +120,21 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
         return;
       }
 
-      // For manual projects, update all fields
+      // Save tags (for both GitHub and manual projects)
+      const tagsRes = await fetch('http://localhost:4000/api/admin/tags', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project: projectKey, tags })
+      });
+
+      if (!tagsRes.ok) {
+        alert('Erreur lors de la mise à jour des tags');
+        setBusy(false);
+        return;
+      }
+
+      // For manual projects, update name and description
       if (!isGithub) {
         const updateRes = await fetch(`http://localhost:4000/api/admin/projects/manual/${project.id}`, {
           method: 'PUT',
