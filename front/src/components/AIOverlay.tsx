@@ -84,7 +84,7 @@ export default function AIOverlay({ isGameActive, onGlitchIntensityChange, onBla
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [gameStartTime, setGameStartTime] = useState<number | null>(null);
-  const [timeElapsed, setTimeElapsed] = useState(0);
+  const [, setTimeElapsed] = useState(0);
   const [angerLevel, setAngerLevel] = useState(0); // 0-5
   const audioContextRef = useRef<AudioContext | null>(null);
   const blackoutTriggeredRef = useRef(false);

@@ -66,7 +66,7 @@ export default function Portfolio() {
           
           // Extract all unique tags from projects
           const tagsSet = new Set<string>();
-          apiProjects.forEach(p => {
+          apiProjects.forEach((p: any) => {
             (p.tags || []).forEach((tag: string) => tagsSet.add(tag));
           });
           setAllTags(Array.from(tagsSet).sort());

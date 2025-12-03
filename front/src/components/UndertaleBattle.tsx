@@ -51,7 +51,7 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
   const [playerX, setPlayerX] = useState(50);
   const [playerY, setPlayerY] = useState(50);
   const [attacks, setAttacks] = useState<Attack[]>([]);
-  const [currentPattern, setCurrentPattern] = useState<AttackPattern>('bones');
+  const [, setCurrentPattern] = useState<AttackPattern>('bones');
   const [message, setMessage] = useState("* Assistant IA vous bloque le passage.");
   const [turnCount, setTurnCount] = useState(0);
   const [selectedAction, setSelectedAction] = useState(0);
@@ -59,8 +59,7 @@ export default function UndertaleBattle({ onBattleComplete }: UndertaleBattlePro
   const [isInvincible, setIsInvincible] = useState(false);
   const attackTimeoutRef = useRef<number | null>(null);
   const keysPressed = useRef<Set<string>>(new Set());
-  const lastFrameTime = useRef<number>(Date.now());
-
+  
   
   // Intro sequence
   useEffect(() => {
