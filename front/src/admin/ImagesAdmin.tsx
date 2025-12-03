@@ -13,6 +13,9 @@ export default function AdminImages() {
   const [uploading, setUploading] = useState(false);
   const [editingImage, setEditingImage] = useState<any | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [filterProject, setFilterProject] = useState<string>('all');
+  const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
+  const [selectionMode, setSelectionMode] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -101,6 +104,37 @@ export default function AdminImages() {
     }
   }
 
+  async function bulkDelete() {
+    if (selectedImages.size === 0) return;
+    if (!confirm(`Supprimer ${selectedImages.size} image(s) ?`)) return;
+    
+    try {
+      const promises = Array.from(selectedImages).map(filename =>
+        fetch(`http://localhost:4000/api/admin/images/${encodeURIComponent(filename)}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        })
+      );
+      await Promise.all(promises);
+      setSelectedImages(new Set());
+      setSelectionMode(false);
+      await load();
+    } catch (e) {
+      console.error(e);
+      alert('Erreur lors de la suppression');
+    }
+  }
+
+  function toggleImageSelection(filename: string) {
+    const newSet = new Set(selectedImages);
+    if (newSet.has(filename)) {
+      newSet.delete(filename);
+    } else {
+      newSet.add(filename);
+    }
+    setSelectedImages(newSet);
+  }
+
   return (
     <div className="container admin-images">
       <div className="admin-header">
@@ -157,6 +191,35 @@ export default function AdminImages() {
         </div>
       )}
 
+      {!loading && images.length > 0 && (
+        <div className="images-toolbar">
+          <div className="toolbar-filters">
+            <select value={filterProject} onChange={e => setFilterProject(e.target.value)}>
+              <option value="all">Tous les projets</option>
+              <option value="none">Sans projet</option>
+              {projects.map(p => {
+                const key = p.full_name || `manual:${p.id}`;
+                const label = p.name || p.title || p.full_name;
+                return <option key={key} value={key}>{label}</option>;
+              })}
+            </select>
+          </div>
+          <div className="toolbar-actions">
+            <button 
+              className="btn btn-secondary" 
+              onClick={() => { setSelectionMode(!selectionMode); setSelectedImages(new Set()); }}
+            >
+              {selectionMode ? 'Annuler sélection' : 'Sélectionner'}
+            </button>
+            {selectionMode && selectedImages.size > 0 && (
+              <button className="btn btn-danger" onClick={bulkDelete}>
+                Supprimer ({selectedImages.size})
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {loading && <div className="loading-state">Chargement des images…</div>}
 
       {!loading && images.length === 0 && (
@@ -169,12 +232,35 @@ export default function AdminImages() {
       )}
 
       <div className="images-grid">
-        {images.map(img => (
+        {images
+          .filter(img => {
+            if (filterProject === 'all') return true;
+            if (filterProject === 'none') return !img.project;
+            return img.project === filterProject;
+          })
+          .map(img => (
           <div 
             key={img.filename} 
-            className="image-card"
-            onClick={() => openEdit(img)}
+            className={`image-card ${selectedImages.has(img.filename) ? 'selected' : ''}`}
+            onClick={(e) => {
+              if (selectionMode) {
+                e.stopPropagation();
+                toggleImageSelection(img.filename);
+              } else {
+                openEdit(img);
+              }
+            }}
           >
+            {selectionMode && (
+              <div className="selection-checkbox">
+                <input 
+                  type="checkbox" 
+                  checked={selectedImages.has(img.filename)}
+                  onChange={() => toggleImageSelection(img.filename)}
+                  onClick={e => e.stopPropagation()}
+                />
+              </div>
+            )}
             <div className="image-preview">
               <img 
                 src={img.url.startsWith('/') ? `http://localhost:4000${img.url}` : img.url} 

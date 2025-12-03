@@ -62,13 +62,30 @@ router.delete('/images/:filename', requireAdmin, async (req, res) => {
 router.put('/images/:filename', requireAdmin, async (req, res) => {
   try {
     const filename = req.params.filename;
-    const { project, isPrimary } = req.body || {};
+    const { project, isPrimary, deleteOthers } = req.body || {};
     const updates = { project: project || null };
     if (isPrimary !== undefined) {
       updates.isPrimary = !!isPrimary;
       // If setting as primary, unset other primary images for same project
       if (isPrimary && project) {
         await storage.clearPrimaryForProject(project);
+        
+        // If deleteOthers flag is set, delete all other images for this project
+        if (deleteOthers) {
+          const allImages = await storage.getAllImages();
+          const otherImages = allImages.filter(img => 
+            img.project === project && img.filename !== filename
+          );
+          
+          const uploads = path.join(__dirname, '..', '..', 'uploads');
+          for (const img of otherImages) {
+            const filePath = path.join(uploads, img.filename);
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
+            }
+            await storage.removeImageByFilename(img.filename);
+          }
+        }
       }
     }
     await storage.updateImageMetadata(filename, updates);

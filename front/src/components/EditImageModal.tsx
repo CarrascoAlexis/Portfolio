@@ -12,6 +12,7 @@ type EditImageModalProps = {
 export default function EditImageModal({ image, projects, onClose, onSave, onDelete }: EditImageModalProps) {
   const [project, setProject] = useState(image.project || '');
   const [isPrimary, setIsPrimary] = useState(!!image.isPrimary);
+  const [deleteOthers, setDeleteOthers] = useState(false);
   const [busy, setBusy] = useState(false);
 
   async function handleSave() {
@@ -22,7 +23,11 @@ export default function EditImageModal({ image, projects, onClose, onSave, onDel
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project: project || null, isPrimary })
+        body: JSON.stringify({ 
+          project: project || null, 
+          isPrimary,
+          deleteOthers: isPrimary && deleteOthers 
+        })
       });
 
       if (!res.ok) {
@@ -96,6 +101,23 @@ export default function EditImageModal({ image, projects, onClose, onSave, onDel
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
                 L'image principale s'affichera sur la carte du projet dans la liste.
               </p>
+              
+              {isPrimary && (
+                <div style={{ marginTop: '1rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.875rem' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={deleteOthers}
+                      onChange={e => setDeleteOthers(e.target.checked)}
+                      style={{ width: '18px', height: '18px', accentColor: 'var(--accent-primary)' }}
+                    />
+                    Supprimer les autres images de ce projet
+                  </label>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem', marginLeft: '1.625rem' }}>
+                    Toutes les autres images liées à ce projet seront supprimées (économise de l'espace).
+                  </p>
+                </div>
+              )}
             </div>
           )}
 

@@ -68,6 +68,44 @@
   padding-right: 2.5rem;
 }
 
+.images-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  border: 2px solid var(--line-color);
+  margin-bottom: var(--spacing-lg);
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.toolbar-filters select {
+  padding: 0.5rem 2.5rem 0.5rem 1rem;
+  background: var(--bg-primary);
+  border: 2px solid var(--line-color);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.toolbar-filters select:hover {
+  border-color: var(--accent-primary);
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
 .images-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -81,6 +119,28 @@
   cursor: pointer;
   transition: all var(--transition-normal);
   position: relative;
+}
+
+.image-card.selected {
+  border-color: var(--accent-primary);
+}
+
+.image-card.selected::before {
+  opacity: 0.2;
+}
+
+.selection-checkbox {
+  position: absolute;
+  top: var(--spacing-sm);
+  left: var(--spacing-sm);
+  z-index: 10;
+}
+
+.selection-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--accent-primary);
 }
 
 .image-card::before {
