@@ -16,6 +16,7 @@ export default function Portfolio() {
       setLoading(true);
       setError(null);
       try {
+        // load github projects
         const res = await fetch('http://localhost:4000/api/projects');
         if (!res.ok) throw new Error(`API error ${res.status}`);
         const body = await res.json();
@@ -28,13 +29,31 @@ export default function Portfolio() {
           category: 'web',
           image: project.html_url ? '🔗' : '📦',
           url: project.html_url || project.url || project.clone_url,
-          full_name: project.full_name || (project.owner && `${project.owner.login}/${project.name}`)
+          full_name: project.full_name || (project.owner && `${project.owner.login}/${project.name}`),
+          _source: 'github'
         }));
-        if (apiProjects.length === 0) {
+
+        // load manual projects (public)
+        const manualRes = await fetch('http://localhost:4000/api/projects/manual');
+        let manualBody = { projects: [] };
+        if (manualRes.ok) manualBody = await manualRes.json();
+        const manualProjects = (manualBody.projects || []).map((p: any) => ({
+          id: p.id,
+          title: p.name || p.title || `local-${p.id}`,
+          description: p.description || '',
+          technologies: p.technologies || [],
+          category: p.category || 'web',
+          image: p.image || '📦',
+          url: p.url || null,
+          _source: 'manual',
+          _raw: p
+        }));
+        const merged = [...manualProjects, ...apiProjects];
+        if (merged.length === 0) {
           setError('Aucun projet trouvé.');
           setProjects([]);
         } else {
-          setProjects(apiProjects);
+          setProjects(merged);
         }
       } catch (err: any) {
         console.warn('Failed to load projects from API', err);
@@ -51,6 +70,61 @@ export default function Portfolio() {
   const filteredProjects = filter === 'all'
     ? projects
     : projects.filter(project => project.category === filter);
+
+  const [modalProject, setModalProject] = useState<any | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisibility, setModalVisibility] = useState<boolean | null>(null);
+  const [modalBusy, setModalBusy] = useState(false);
+
+  function openModal(project: any) {
+    setModalProject(project);
+    setModalVisible(true);
+    // determine visibility key
+    (async () => {
+      try {
+        const key = project._source === 'github' ? `github:${project.full_name}` : `manual:${project.id}`;
+        const res = await fetch(`http://localhost:4000/api/projects/visibility?project=${encodeURIComponent(key)}`);
+        if (!res.ok) {
+          setModalVisibility(null);
+          return;
+        }
+        const b = await res.json();
+        setModalVisibility(b.hasOwnProperty('visible') ? b.visible : null);
+      } catch (e) {
+        setModalVisibility(null);
+      }
+    })();
+  }
+
+  function closeModal() {
+    setModalVisible(false);
+    setModalProject(null);
+    setModalVisibility(null);
+  }
+
+  async function toggleVisibility() {
+    if (!modalProject) return;
+    const key = modalProject._source === 'github' ? `github:${modalProject.full_name}` : `manual:${modalProject.id}`;
+    const newVal = !(modalVisibility === true);
+    setModalBusy(true);
+    try {
+      const res = await fetch('http://localhost:4000/api/admin/visibility', {
+        method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project: key, visible: newVal })
+      });
+      if (!res.ok) {
+        const b = await res.json().catch(() => ({}));
+        alert(b.error || 'Not authorized');
+        setModalBusy(false);
+        return;
+      }
+      setModalVisibility(newVal);
+    } catch (e) {
+      alert('Network error');
+    } finally {
+      setModalBusy(false);
+    }
+  }
 
   return (
     <div className="portfolio">
@@ -80,7 +154,7 @@ export default function Portfolio() {
 
           <div className="projects-grid">
             {filteredProjects.map(project => (
-              <div key={project.id} className="project-card">
+              <div key={project.id} className="project-card" onClick={() => openModal(project)} style={{ cursor: 'pointer' }}>
                 <div className="project-image">
                   <span className="project-emoji">{project.image}</span>
                 </div>
@@ -93,18 +167,36 @@ export default function Portfolio() {
                     ))}
                   </div>
                   <div className="project-links">
-                    {project.title ? (
-                      <Link className="project-link" to={`/projects/${encodeURIComponent(project.title)}`}>Voir le projet →</Link>
-                    ) : project.url ? (
-                      <a className="project-link" href={project.url} target="_blank" rel="noreferrer">Voir le projet →</a>
+                    {project.url ? (
+                      <a className="project-link" href={project.url} target="_blank" rel="noreferrer">Voir sur GitHub / Live →</a>
                     ) : (
-                      <button className="project-link">Voir le projet →</button>
+                      <span className="project-link muted">Infos →</span>
                     )}
                   </div>
                 </div>
               </div>
             ))}
           </div>
+
+          {/* Modal */}
+          {modalProject && (
+            <div className="modal-backdrop" onClick={() => { setModalProject(null); setModalVisibility(null); }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10010, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="modal" onClick={e => e.stopPropagation()} style={{ background: '#fff', padding: 20, maxWidth: 720, width: '90%', borderRadius: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3>{modalProject.title}</h3>
+                  <button onClick={() => { setModalProject(null); setModalVisibility(null); }}>✕</button>
+                </div>
+                <p>{modalProject.description}</p>
+                <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+                  {modalProject.url && <a className="btn" href={modalProject.url} target="_blank" rel="noreferrer">Voir le repo / live</a>}
+                  <div style={{ marginLeft: 'auto' }}>
+                    <span style={{ marginRight: 8 }}>Visible on site:</span>
+                    <button className="btn" onClick={toggleVisibility} disabled={modalBusy}>{modalVisibility === true ? 'Oui' : 'Non'}</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </div>

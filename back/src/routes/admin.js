@@ -59,4 +59,18 @@ router.delete('/images/:filename', requireAdmin, async (req, res) => {
   }
 });
 
+// admin: set visibility for a project (key should be 'github:owner/repo' or 'manual:<id>')
+router.post('/visibility', requireAdmin, async (req, res) => {
+  try {
+    const { project, visible } = req.body || {};
+    if (!project) return res.status(400).json({ ok: false, error: 'project required' });
+    const storage = require('../services/storage');
+    await storage.setProjectVisibility(project, !!visible);
+    res.json({ ok: true, project, visible: !!visible });
+  } catch (err) {
+    console.error('admin set visibility error', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 module.exports = router;

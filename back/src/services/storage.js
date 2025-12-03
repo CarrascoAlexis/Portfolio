@@ -30,6 +30,8 @@ memory.images = {};
 memory.projects = {};
 // manual projects (admin-created)
 memory.manualProjects = [];
+// visibility map: key -> boolean (e.g. 'github:owner/repo' or 'manual:<id>')
+memory.visibility = {};
 
 async function saveMessage(room, message) {
   if (redisClient) {
@@ -158,6 +160,38 @@ module.exports = {
     const before = memory.manualProjects.length;
     memory.manualProjects = memory.manualProjects.filter(p => p.id !== id);
     return memory.manualProjects.length < before;
+  },
+  // visibility map
+  setProjectVisibility: async (key, visible) => {
+    if (!key) return false;
+    if (redisClient) {
+      const k = `visibility`;
+      const data = await redisClient.get(k) || '{}';
+      const map = JSON.parse(data);
+      map[key] = !!visible;
+      await redisClient.set(k, JSON.stringify(map));
+      return true;
+    }
+    memory.visibility[key] = !!visible;
+    return true;
+  },
+  getProjectVisibility: async (key) => {
+    if (!key) return null;
+    if (redisClient) {
+      const k = `visibility`;
+      const data = await redisClient.get(k) || '{}';
+      const map = JSON.parse(data);
+      return map.hasOwnProperty(key) ? map[key] : null;
+    }
+    return memory.visibility.hasOwnProperty(key) ? memory.visibility[key] : null;
+  },
+  getAllVisibilities: async () => {
+    if (redisClient) {
+      const k = `visibility`;
+      const data = await redisClient.get(k) || '{}';
+      return JSON.parse(data);
+    }
+    return { ...memory.visibility };
   },
   // images
   saveImage: async (project, imageMeta) => {
