@@ -1,7 +1,9 @@
 // Simple config loader: prefers environment variables, falls back to back/config.json
+const path = require('path');
 let fileCfg = {};
 try {
-  fileCfg = require('../../config.json');
+  const configPath = path.join(__dirname, '..', 'config.json');
+  fileCfg = require(configPath);
 } catch (e) {
   fileCfg = {};
 }
