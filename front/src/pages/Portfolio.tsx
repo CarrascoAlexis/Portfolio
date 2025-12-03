@@ -34,8 +34,8 @@ export default function Portfolio() {
         // API now returns combined projects (manual + github) filtered by visibility
         const apiProjects = (body.projects || []).map((project: any, i: number) => {
           // Construct project key based on source
-          const projectKey = project._source === 'github' 
-            ? project.full_name 
+          const projectKey = project._source === 'github'
+            ? project.full_name
             : `manual:${project.id}`;
 
           // Find primary image for this project
