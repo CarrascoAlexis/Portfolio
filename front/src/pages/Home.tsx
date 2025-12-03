@@ -18,7 +18,7 @@ export default function Home() {
               Création d'expériences web modernes et performantes avec une approche technique rigoureuse.
             </p>
             <div className="hero-actions">
-              <Link to="/portfolio" className="btn btn-primary">
+              <Link to="/projects" className="btn btn-primary">
                 Voir mes projets
               </Link>
               <Link to="/about" className="btn btn-secondary">

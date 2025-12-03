@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './Portfolio.css';
 
 const categories = ['all', 'web', 'mobile', 'dashboard'];
@@ -26,7 +27,8 @@ export default function Portfolio() {
           technologies: project.language ? [project.language] : [],
           category: 'web',
           image: project.html_url ? '🔗' : '📦',
-          url: project.html_url || project.url || project.clone_url
+          url: project.html_url || project.url || project.clone_url,
+          full_name: project.full_name || (project.owner && `${project.owner.login}/${project.name}`)
         }));
         if (apiProjects.length === 0) {
           setError('Aucun projet trouvé.');
@@ -91,7 +93,9 @@ export default function Portfolio() {
                     ))}
                   </div>
                   <div className="project-links">
-                    {project.url ? (
+                    {project.title ? (
+                      <Link className="project-link" to={`/projects/${encodeURIComponent(project.title)}`}>Voir le projet →</Link>
+                    ) : project.url ? (
                       <a className="project-link" href={project.url} target="_blank" rel="noreferrer">Voir le projet →</a>
                     ) : (
                       <button className="project-link">Voir le projet →</button>

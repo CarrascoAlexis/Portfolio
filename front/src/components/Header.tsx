@@ -49,7 +49,7 @@ export default function Header() {
         <nav className={`nav ${menuOpen ? 'nav-open' : ''}`}>
           <Link to="/" onClick={() => setMenuOpen(false)}>Accueil</Link>
           <Link to="/about" onClick={() => setMenuOpen(false)}>À propos</Link>
-          <Link to="/portfolio" onClick={() => setMenuOpen(false)}>Portfolio</Link>
+          <Link to="/projects" onClick={() => setMenuOpen(false)}>Portfolio</Link>
           {/* Theme dropdown button */}
           <div className={`theme-wrapper ${themeOpen ? 'open' : ''}`} ref={themeRef}>
             <button

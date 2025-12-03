@@ -11,6 +11,7 @@ import GraffitiOverlay from './components/GraffitiOverlay';
 import Home from './pages/Home';
 import About from './pages/About';
 import Portfolio from './pages/Portfolio';
+import Project from './pages/Project';
 import './App.css';
 
 function App() {
@@ -203,7 +204,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
-            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/projects" element={<Portfolio />} />
+            <Route path="/projects/:name" element={<Project />} />
           </Routes>
         </main>
         <Footer onGameToggle={handleGameToggle} />
