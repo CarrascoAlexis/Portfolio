@@ -54,7 +54,7 @@ export default function CreateProject() {
       setBusy(false);
     }
   }
-
+  console.log(gallery)
   return (
     <div className="container">
       <h2>Créer un projet</h2>
@@ -72,7 +72,7 @@ export default function CreateProject() {
           <div style={{ marginBottom: 8 }}>Galerie (choisir des images)</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {gallery.length === 0 && <div>Aucune image trouvée</div>}
-            {gallery.map(img => (
+            {gallery.map((img: string) => (
               <div key={img} style={{ width: 120, border: images.includes(img) ? '3px solid #00a' : '1px solid #ddd', padding: 4, borderRadius: 6 }}>
                 <img src={img} alt="img" style={{ width: '100%', height: 80, objectFit: 'cover', borderRadius: 4 }} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
