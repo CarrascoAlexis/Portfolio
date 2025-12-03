@@ -3,6 +3,14 @@ const { v4: uuidv4 } = require('uuid');
 
 let redisClient = null;
 const useRedis = !!process.env.REDIS_URL;
+const useSqlite = process.env.USE_SQLITE !== 'false'; // SQLite by default
+
+// If SQLite is enabled, use it for persistent storage
+if (useSqlite && !useRedis) {
+  console.log('Storage: using SQLite for persistent data');
+  module.exports = require('./storageSqlite');
+  return;
+}
 
 if (useRedis) {
   try {
