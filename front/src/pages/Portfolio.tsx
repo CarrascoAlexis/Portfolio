@@ -20,16 +20,16 @@ export default function Portfolio() {
           fetch('http://localhost:4000/api/projects?visible=1'),
           fetch('http://localhost:4000/api/images')
         ]);
-        
+
         if (!projRes.ok) throw new Error(`API error ${projRes.status}`);
         const body = await projRes.json();
-        
+
         let allImages: any[] = [];
         if (imgRes.ok) {
           const imgBody = await imgRes.json();
           allImages = imgBody.images || [];
         }
-        
+
         if (cancelled) return;
         // API now returns combined projects (manual + github) filtered by visibility
         const apiProjects = (body.projects || []).map((project: any, i: number) => {
@@ -37,10 +37,10 @@ export default function Portfolio() {
           const projectKey = project._source === 'github' 
             ? project.full_name 
             : `manual:${project.id}`;
-          
+
           // Find primary image for this project
           const primaryImage = allImages.find(img => img.project === projectKey && img.isPrimary);
-          
+
           return {
             id: project.id || `${i}-${project.full_name || project.name}`,
             title: project.name || project.title || project.full_name,
