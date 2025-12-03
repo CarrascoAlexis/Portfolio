@@ -218,6 +218,46 @@ function clearPrimaryForProject(project) {
 }
 
 // ====================
+// Project Tags
+// ====================
+
+function setProjectTags(key, tags) {
+  if (!key) return false;
+  
+  const tagsJson = Array.isArray(tags) ? JSON.stringify(tags) : tags;
+  
+  const stmt = db.prepare(`
+    INSERT INTO project_tags (project_key, tags, updated_at)
+    VALUES (?, ?, datetime('now'))
+    ON CONFLICT(project_key) DO UPDATE SET tags = ?, updated_at = datetime('now')
+  `);
+  
+  stmt.run(key, tagsJson, tagsJson);
+  return true;
+}
+
+function getProjectTags(key) {
+  if (!key) return null;
+  
+  const stmt = db.prepare('SELECT tags FROM project_tags WHERE project_key = ?');
+  const row = stmt.get(key);
+  
+  return row ? JSON.parse(row.tags) : null;
+}
+
+function getAllProjectTags() {
+  const stmt = db.prepare('SELECT project_key, tags FROM project_tags');
+  const rows = stmt.all();
+  
+  const map = {};
+  rows.forEach(row => {
+    map[row.project_key] = JSON.parse(row.tags);
+  });
+  
+  return map;
+}
+
+// ====================
 // GitHub Projects Cache (kept in memory for performance)
 // ====================
 
@@ -280,6 +320,11 @@ module.exports = {
   setProjectVisibility: async (key, visible) => setProjectVisibility(key, visible),
   getProjectVisibility: async (key) => getProjectVisibility(key),
   getAllVisibilities: async () => getAllVisibilities(),
+  
+  // Project tags
+  setProjectTags: async (key, tags) => setProjectTags(key, tags),
+  getProjectTags: async (key) => getProjectTags(key),
+  getAllProjectTags: async () => getAllProjectTags(),
   
   // Images
   saveImage: async (project, imageMeta) => saveImage(project, imageMeta),

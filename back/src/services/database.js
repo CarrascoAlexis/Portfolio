@@ -49,6 +49,13 @@ function initDatabase() {
       uploaded_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
 
+    -- Project tags table (for custom tags on any project)
+    CREATE TABLE IF NOT EXISTS project_tags (
+      project_key TEXT PRIMARY KEY, -- 'github:owner/repo' or 'manual:id'
+      tags TEXT NOT NULL, -- JSON array of tags
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
     -- Create indexes for better query performance
     CREATE INDEX IF NOT EXISTS idx_images_project ON images(project);
     CREATE INDEX IF NOT EXISTS idx_images_is_primary ON images(is_primary);
