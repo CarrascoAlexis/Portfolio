@@ -1,55 +1,5 @@
 import { useState, useEffect } from 'react';
 import './Portfolio.css';
-const fallbackProjects = [
-  {
-    id: 1,
-    title: 'E-Commerce Platform',
-    description: 'Plateforme de vente en ligne complète avec gestion des paiements et tableau de bord admin.',
-    technologies: ['React', 'Node.js', 'PostgreSQL', 'Stripe'],
-    category: 'web',
-    image: '🛒'
-  },
-  {
-    id: 2,
-    title: 'Real-time Chat Application',
-    description: 'Application de messagerie instantanée avec support multi-rooms et notifications en temps réel.',
-    technologies: ['React', 'Socket.IO', 'Express', 'Redis'],
-    category: 'web',
-    image: '💬'
-  },
-  {
-    id: 3,
-    title: 'Portfolio Dashboard',
-    description: 'Dashboard interactif pour suivre et analyser les performances d\'un portefeuille d\'investissement.',
-    technologies: ['Vue.js', 'TypeScript', 'D3.js', 'Firebase'],
-    category: 'dashboard',
-    image: '📊'
-  },
-  {
-    id: 4,
-    title: 'Task Management System',
-    description: 'Système de gestion de tâches et projets avec fonctionnalités de collaboration en équipe.',
-    technologies: ['React', 'Node.js', 'MongoDB', 'Docker'],
-    category: 'web',
-    image: '✅'
-  },
-  {
-    id: 5,
-    title: 'Weather Forecast App',
-    description: 'Application météo moderne avec prévisions à 7 jours et visualisations interactives.',
-    technologies: ['React', 'TypeScript', 'OpenWeather API'],
-    category: 'mobile',
-    image: '🌤️'
-  },
-  {
-    id: 6,
-    title: 'Blog Platform',
-    description: 'Plateforme de blog avec éditeur markdown, commentaires et système de tags.',
-    technologies: ['Next.js', 'TypeScript', 'Prisma', 'PostgreSQL'],
-    category: 'web',
-    image: '📝'
-  }
-];
 
 const categories = ['all', 'web', 'mobile', 'dashboard'];
 
@@ -78,11 +28,16 @@ export default function Portfolio() {
           image: project.html_url ? '🔗' : '📦',
           url: project.html_url || project.url || project.clone_url
         }));
-        setProjects(apiProjects.length ? apiProjects : fallbackProjects);
+        if (apiProjects.length === 0) {
+          setError('Aucun projet trouvé.');
+          setProjects([]);
+        } else {
+          setProjects(apiProjects);
+        }
       } catch (err: any) {
-        console.warn('Failed to load projects from API, using fallback', err);
-        setError(err?.message || 'Failed to load projects');
-        setProjects(fallbackProjects);
+        console.warn('Failed to load projects from API', err);
+        setError(err?.message || 'Impossible de charger les projets');
+        setProjects([]);
       } finally {
         setLoading(false);
       }
@@ -118,8 +73,8 @@ export default function Portfolio() {
             ))}
           </div>
 
-          {loading && <p>Loading projects…</p>}
-          {error && <p className="error">Error: {error}</p>}
+          {loading && <p>Chargement des projets…</p>}
+          {error && <p className="error">{error}</p>}
 
           <div className="projects-grid">
             {filteredProjects.map(project => (
@@ -131,7 +86,7 @@ export default function Portfolio() {
                   <h3>{project.title}</h3>
                   <p>{project.description}</p>
                   <div className="project-tech">
-                    {project.technologies.map((tech, i) => (
+                    {project.technologies.map((tech: string, i: number) => (
                       <span key={i} className="tech-badge">{tech}</span>
                     ))}
                   </div>
