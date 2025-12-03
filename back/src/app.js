@@ -8,7 +8,29 @@ const app = express();
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
 
 // Configure CORS to allow credentials (cookies) from frontend origin
-const corsOptions = { origin: FRONTEND_ORIGIN, credentials: true };
+// Allow multiple origins or use a function to validate dynamically
+const corsOptions = { 
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, postman)
+    if (!origin) return callback(null, true);
+    
+    // Allow configured frontend origin and localhost variants
+    const allowedOrigins = [
+      FRONTEND_ORIGIN,
+      'http://localhost:3000',
+      'http://localhost:80',
+      'http://localhost:5173',
+      'http://raspberry.distant'
+    ];
+    
+    if (allowedOrigins.includes(origin) || origin.includes('localhost') || origin.includes('raspberry')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true 
+};
 app.use(cors(corsOptions));
 // handle preflight requests
 app.options('*', cors(corsOptions));
