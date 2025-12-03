@@ -12,3 +12,5 @@ initSocket(server);
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
+
+// touched to trigger nodemon restart when env changes are applied
