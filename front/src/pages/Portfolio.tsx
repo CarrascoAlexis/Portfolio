@@ -16,44 +16,31 @@ export default function Portfolio() {
       setLoading(true);
       setError(null);
       try {
-        // load github projects
-        const res = await fetch('http://localhost:4000/api/projects');
+        // load only visible projects (combined GitHub + manual) from API
+        const res = await fetch('http://localhost:4000/api/projects?visible=1');
         if (!res.ok) throw new Error(`API error ${res.status}`);
         const body = await res.json();
         if (cancelled) return;
+        // API now returns combined projects (manual + github) filtered by visibility
         const apiProjects = (body.projects || []).map((project: any, i: number) => ({
-          id: project.id || `${i}-${project.full_name}`,
-          title: project.name || project.full_name,
-          description: project.description || '',
-          technologies: project.language ? [project.language] : [],
-          category: 'web',
-          image: project.html_url ? '🔗' : '📦',
-          url: project.html_url || project.url || project.clone_url,
-          full_name: project.full_name || (project.owner && `${project.owner.login}/${project.name}`),
-          _source: 'github'
+          id: project.id || `${i}-${project.full_name || project.name}`,
+          title: project.name || project.title || project.full_name,
+          description: project.description || project._raw?.description || '',
+          technologies: project.language ? [project.language] : (project._raw?.technologies || []),
+          category: project.category || (project._raw?.category) || 'web',
+          image: project.image || (project.html_url ? '🔗' : '📦'),
+          url: project.html_url || project.url || project.clone_url || null,
+          full_name: project.full_name || (project._raw && project._raw.owner && `${project._raw.owner}/${project._raw.name}`) || null,
+          _source: project._source || (project._raw ? 'manual' : 'github'),
+          visible: project.visible !== undefined ? project.visible : true,
+          _raw: project._raw || null
         }));
 
-        // load manual projects (public)
-        const manualRes = await fetch('http://localhost:4000/api/projects/manual');
-        let manualBody = { projects: [] };
-        if (manualRes.ok) manualBody = await manualRes.json();
-        const manualProjects = (manualBody.projects || []).map((p: any) => ({
-          id: p.id,
-          title: p.name || p.title || `local-${p.id}`,
-          description: p.description || '',
-          technologies: p.technologies || [],
-          category: p.category || 'web',
-          image: p.image || '📦',
-          url: p.url || null,
-          _source: 'manual',
-          _raw: p
-        }));
-        const merged = [...manualProjects, ...apiProjects];
-        if (merged.length === 0) {
+        if (apiProjects.length === 0) {
           setError('Aucun projet trouvé.');
           setProjects([]);
         } else {
-          setProjects(merged);
+          setProjects(apiProjects);
         }
       } catch (err: any) {
         console.warn('Failed to load projects from API', err);
