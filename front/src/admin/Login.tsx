@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function AdminLogin() {
@@ -8,6 +8,10 @@ export default function AdminLogin() {
   const navigate = useNavigate();
   const [search] = useSearchParams();
   const next = search.get('next') || '/admin';
+
+  useEffect(() => {
+    document.title = 'Admin Login - Alexis Carrasco';
+  }, []);
 
   async function submit(e: any) {
     e.preventDefault();

@@ -14,6 +14,10 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    document.title = 'Dashboard Admin - Alexis Carrasco';
+  }, []);
+
+  useEffect(() => {
     (async () => {
       setLoading(true);
       try {

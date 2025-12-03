@@ -17,6 +17,10 @@ export default function AdminImages() {
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [selectionMode, setSelectionMode] = useState(false);
 
+  useEffect(() => {
+    document.title = 'Gestion Images - Alexis Carrasco';
+  }, []);
+
   async function load() {
     setLoading(true);
     try {

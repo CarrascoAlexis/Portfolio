@@ -14,6 +14,10 @@ export default function AdminProjects() {
   const [editingProject, setEditingProject] = useState<any | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
+  useEffect(() => {
+    document.title = 'Gestion Projets - Alexis Carrasco';
+  }, []);
+
   async function loadAll() {
     setLoading(true);
     try {

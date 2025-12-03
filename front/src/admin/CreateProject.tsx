@@ -10,6 +10,10 @@ export default function CreateProject() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = 'Créer un Projet - Alexis Carrasco';
+  }, []);
+
+  useEffect(() => {
     // load images from gallery
     (async () => {
       try {

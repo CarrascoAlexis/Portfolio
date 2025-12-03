@@ -10,6 +10,10 @@ export default function Portfolio() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    document.title = 'Mes Projets - Alexis Carrasco';
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     async function load() {
       setLoading(true);

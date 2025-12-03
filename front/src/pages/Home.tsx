@@ -1,7 +1,12 @@
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import './Home.css';
 
 export default function Home() {
+  useEffect(() => {
+    document.title = 'Alexis Carrasco - Développeur Full Stack';
+  }, []);
+
   return (
     <div className="home">
       <section className="hero">
@@ -12,6 +17,7 @@ export default function Home() {
               <span>DISPONIBLE POUR DE NOUVEAUX PROJETS</span>
             </div>
             <h1 className="hero-title">
+              Alexis Carrasco<br/>
               Développeur <span className="highlight">Full Stack</span>
             </h1>
             <p className="hero-subtitle">

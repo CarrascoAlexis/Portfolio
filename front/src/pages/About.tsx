@@ -1,12 +1,17 @@
+import { useEffect } from 'react';
 import './About.css';
 
 export default function About() {
+  useEffect(() => {
+    document.title = 'À propos - Alexis Carrasco';
+  }, []);
+
   return (
     <div className="about">
       <section className="about-hero">
         <div className="container">
           <h1>À propos de moi</h1>
-          <p className="lead">Passionné par le développement web et les technologies modernes</p>
+          <p className="lead">Alexis Carrasco - Passionné par le développement web et les technologies modernes</p>
         </div>
       </section>
 
@@ -16,12 +21,14 @@ export default function About() {
             <div className="about-text">
               <h2>Mon parcours</h2>
               <p>
-                Développeur full stack avec une forte passion pour la création d'applications web performantes 
-                et élégantes. Je me spécialise dans les technologies modernes comme React, TypeScript, et Node.js.
+                Je suis Alexis Carrasco, développeur full stack passionné par la création d'applications 
+                web performantes et élégantes. Je me spécialise dans les technologies modernes comme 
+                React, TypeScript, et Node.js.
               </p>
               <p>
-                Mon approche combine rigueur technique, créativité, et souci du détail pour livrer des solutions 
-                qui dépassent les attentes.
+                Mon approche combine rigueur technique, créativité, et souci du détail pour livrer 
+                des solutions qui dépassent les attentes. Chaque projet est une opportunité d'apprendre 
+                et d'innover.
               </p>
 
               <h2>Mes valeurs</h2>
