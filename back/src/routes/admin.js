@@ -110,4 +110,18 @@ router.post('/visibility', requireAdmin, async (req, res) => {
   }
 });
 
+// admin: set tags for a project (key should be 'github:owner/repo' or 'manual:<id>')
+router.post('/tags', requireAdmin, async (req, res) => {
+  try {
+    const { project, tags } = req.body || {};
+    if (!project) return res.status(400).json({ ok: false, error: 'project required' });
+    if (!Array.isArray(tags)) return res.status(400).json({ ok: false, error: 'tags must be an array' });
+    await storage.setProjectTags(project, tags);
+    res.json({ ok: true, project, tags });
+  } catch (err) {
+    console.error('admin set tags error', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 module.exports = router;
