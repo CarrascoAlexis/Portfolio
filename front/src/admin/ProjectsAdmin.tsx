@@ -22,15 +22,15 @@ export default function AdminProjects() {
     setLoading(true);
     try {
       // GitHub projects (public)
-      const gh = await fetch('/projects');
+      const gh = await fetch('/api/projects');
       const ghList = gh.ok ? ((await gh.json()).projects || []).map((p: any) => ({ ...p, _source: 'github' })) : [];
 
       // manual projects (admin)
-      const manual = await fetch('/admin/projects/manual', { credentials: 'include' });
+      const manual = await fetch('/api/admin/projects/manual', { credentials: 'include' });
       const manualList = manual.ok ? ((await manual.json()).projects || []).map((p: any) => ({ ...p, _source: 'manual' })) : [];
 
       // load visibilities
-      const vis = await fetch('/projects/visibility');
+      const vis = await fetch('/api/projects/visibility');
       if (vis.ok) {
         const bv = await vis.json();
         setVisMap(bv.visibility || {});

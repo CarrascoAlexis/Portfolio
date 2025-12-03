@@ -25,8 +25,8 @@ export default function AdminImages() {
     setLoading(true);
     try {
       const [imgRes, projRes] = await Promise.all([
-        fetch('/admin/images', { credentials: 'include' }),
-        fetch('/projects')
+        fetch('/api/admin/images', { credentials: 'include' }),
+        fetch('/api/projects')
       ]);
 
       if (imgRes.ok) {
@@ -56,7 +56,7 @@ export default function AdminImages() {
     if (selectedProject) fd.append('project', selectedProject);
     
     try {
-      const res = await fetch('/images', { 
+      const res = await fetch('/api/images', { 
         method: 'POST', 
         credentials: 'include', 
         body: fd 
