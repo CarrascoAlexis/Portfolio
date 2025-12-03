@@ -8,13 +8,13 @@ const app = express();
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
 
 // Configure CORS to allow credentials (cookies) from frontend origin
-// Allow multiple origins or use a function to validate dynamically
+// Strict whitelist for production security
 const corsOptions = { 
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps, curl, postman)
     if (!origin) return callback(null, true);
     
-    // Allow configured frontend origin and localhost variants
+    // Strict whitelist of allowed origins
     const allowedOrigins = [
       FRONTEND_ORIGIN,
       'http://localhost:3000',
@@ -25,12 +25,13 @@ const corsOptions = {
       'http://86.252.87.194'
     ];
     
-    if (allowedOrigins.includes(origin) || origin.includes('localhost') || origin.includes('raspberry') || origin.includes('86.252.87.194')) {
+    // Only allow explicitly listed origins
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      // Don't throw error, just allow it anyway (less strict for development)
-      console.warn('CORS: Unknown origin', origin);
-      callback(null, true);
+      // Reject unknown origins in production
+      console.warn('CORS: Rejected origin', origin);
+      callback(null, false);
     }
   },
   credentials: true 
