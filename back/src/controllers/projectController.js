@@ -39,7 +39,8 @@ async function list(req, res) {
     const manual = await storage.getManualProjects();
     const manualProjects = (manual || []).map(p => ({
       id: p.id,
-      name: p.name,
+      name: p.title, // map title to name for consistency with GitHub projects
+      title: p.title,
       description: p.description,
       url: p.url || null,
       _source: 'manual',

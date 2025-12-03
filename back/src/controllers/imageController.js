@@ -43,8 +43,17 @@ async function uploadImage(req, res) {
 
 async function listImages(req, res) {
   try {
-    const project = req.query.project || null;
-    const images = await storageService.getImages(project);
+    const project = req.query.project;
+    let images;
+    
+    if (project) {
+      // If project is specified, return all images for that project
+      images = await storageService.getImages(project);
+    } else {
+      // If no project specified, return all images (for public portfolio page)
+      images = await storageService.getAllImages();
+    }
+    
     res.json({ ok: true, images });
   } catch (err) {
     console.error('imageController.listImages error', err);
