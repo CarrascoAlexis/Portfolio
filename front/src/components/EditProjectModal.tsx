@@ -23,6 +23,8 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
   const [tagInput, setTagInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [projectImages, setProjectImages] = useState<any[]>([]);
+  const [allExistingTags, setAllExistingTags] = useState<string[]>([]);
+  const [showTagSuggestions, setShowTagSuggestions] = useState(false);
 
   useEffect(() => {
     // Load all images and filter those linked to this project
@@ -43,17 +45,49 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
     })();
   }, [projectKey]);
 
+  useEffect(() => {
+    // Load all existing tags from all projects
+    (async () => {
+      try {
+        const res = await fetch('http://localhost:4000/api/projects');
+        if (res.ok) {
+          const b = await res.json();
+          const projects = b.projects || [];
+          const tagsSet = new Set<string>();
+          projects.forEach((p: any) => {
+            (p.tags || []).forEach((tag: string) => tagsSet.add(tag));
+          });
+          setAllExistingTags(Array.from(tagsSet).sort());
+        }
+      } catch (e) {
+        console.error('Failed to load existing tags', e);
+      }
+    })();
+  }, []);
+
   function addTag() {
     const trimmed = tagInput.trim();
     if (trimmed && !tags.includes(trimmed)) {
       setTags([...tags, trimmed]);
       setTagInput('');
+      setShowTagSuggestions(false);
+    }
+  }
+
+  function addExistingTag(tag: string) {
+    if (!tags.includes(tag)) {
+      setTags([...tags, tag]);
     }
   }
 
   function removeTag(tag: string) {
     setTags(tags.filter(t => t !== tag));
   }
+
+  // Filter suggestions based on input and exclude already selected tags
+  const tagSuggestions = allExistingTags.filter(tag => 
+    tag.toLowerCase().includes(tagInput.toLowerCase()) && !tags.includes(tag)
+  );
 
   async function unlinkImage(filename: string) {
     try {
@@ -212,15 +246,58 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
               ))}
             </div>
             <div className="tag-input-group">
-              <input 
-                type="text" 
-                value={tagInput} 
-                onChange={e => setTagInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                placeholder="Ajouter un tag"
-              />
+              <div style={{ position: 'relative', flex: 1 }}>
+                <input 
+                  type="text" 
+                  value={tagInput} 
+                  onChange={e => {
+                    setTagInput(e.target.value);
+                    setShowTagSuggestions(e.target.value.length > 0);
+                  }}
+                  onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                  onFocus={() => setShowTagSuggestions(tagInput.length > 0)}
+                  onBlur={() => setTimeout(() => setShowTagSuggestions(false), 200)}
+                  placeholder="Ajouter un tag"
+                />
+                {showTagSuggestions && tagSuggestions.length > 0 && (
+                  <div className="tag-suggestions">
+                    {tagSuggestions.slice(0, 10).map(tag => (
+                      <div 
+                        key={tag} 
+                        className="tag-suggestion-item"
+                        onClick={() => {
+                          addExistingTag(tag);
+                          setTagInput('');
+                          setShowTagSuggestions(false);
+                        }}
+                      >
+                        {tag}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <button type="button" onClick={addTag} className="btn-add-tag">+</button>
             </div>
+            {allExistingTags.length > 0 && (
+              <div style={{ marginTop: '0.5rem' }}>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                  Tags existants :
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                  {allExistingTags.filter(t => !tags.includes(t)).slice(0, 15).map(tag => (
+                    <button
+                      key={tag}
+                      type="button"
+                      className="existing-tag-btn"
+                      onClick={() => addExistingTag(tag)}
+                    >
+                      + {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Images (manuel seulement) */}
