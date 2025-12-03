@@ -31,11 +31,22 @@ async function list(req, res) {
       id: r.id,
       name: r.name,
       full_name: r.full_name,
-      description: r.description,
+      description: r.description || null,
       language: r.language,
-      html_url: r.html_url,
+      html_url: r.url || r.html_url,
+      owner: r.full_name ? { login: r.full_name.split('/')[0] } : null,
       _source: 'github'
     }));
+
+    // Merge custom metadata for GitHub projects (descriptions, technologies)
+    for (const p of ghProjects) {
+      const metadata = await storage.getGitHubProjectMetadata(p.full_name);
+      if (metadata) {
+        if (metadata.description) p.description = metadata.description;
+        if (metadata.technologies) p.technologies = metadata.technologies;
+        if (metadata.showReadme !== undefined) p.showReadme = metadata.showReadme;
+      }
+    }
 
     // load manual projects
     const manual = await storage.getManualProjects();
@@ -43,8 +54,9 @@ async function list(req, res) {
       id: p.id,
       name: p.title, // map title to name for consistency with GitHub projects
       title: p.title,
-      description: p.description,
-      url: p.url || null,
+      description: p.description || null,
+      html_url: p.url || null,
+      technologies: p.technologies || [],
       _source: 'manual',
       _raw: p
     }));
@@ -73,4 +85,25 @@ async function list(req, res) {
   }
 }
 
-module.exports = { list };
+async function updateGitHubMetadata(req, res) {
+  try {
+    const { projectKey, description, technologies } = req.body;
+    
+    if (!projectKey) {
+      return res.status(400).json({ ok: false, error: 'projectKey required' });
+    }
+    
+    const metadata = {};
+    if (description !== undefined) metadata.description = description;
+    if (technologies !== undefined) metadata.technologies = technologies;
+    
+    await storage.setGitHubProjectMetadata(projectKey, metadata);
+    
+    res.json({ ok: true, message: 'Metadata updated' });
+  } catch (err) {
+    console.error('projectController.updateGitHubMetadata error', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+module.exports = { list, updateGitHubMetadata };

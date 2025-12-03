@@ -344,6 +344,73 @@ function getContactMessages() {
 }
 
 // ====================
+// GitHub Project Metadata
+// ====================
+
+function setGitHubProjectMetadata(projectKey, metadata) {
+  if (!projectKey) return false;
+  
+  const technologies = metadata.technologies 
+    ? (Array.isArray(metadata.technologies) ? JSON.stringify(metadata.technologies) : metadata.technologies)
+    : null;
+  
+  const stmt = db.prepare(`
+    INSERT INTO github_project_metadata (project_key, description, technologies, show_readme, updated_at)
+    VALUES (?, ?, ?, ?, datetime('now'))
+    ON CONFLICT(project_key) DO UPDATE SET 
+      description = COALESCE(?, description),
+      technologies = COALESCE(?, technologies),
+      show_readme = COALESCE(?, show_readme),
+      updated_at = datetime('now')
+  `);
+  
+  const showReadme = metadata.showReadme !== undefined ? (metadata.showReadme ? 1 : 0) : null;
+  
+  stmt.run(
+    projectKey,
+    metadata.description || null,
+    technologies,
+    showReadme,
+    metadata.description || null,
+    technologies,
+    showReadme
+  );
+  
+  return true;
+}
+
+function getGitHubProjectMetadata(projectKey) {
+  if (!projectKey) return null;
+  
+  const stmt = db.prepare('SELECT * FROM github_project_metadata WHERE project_key = ?');
+  const row = stmt.get(projectKey);
+  
+  if (!row) return null;
+  
+  return {
+    description: row.description,
+    technologies: row.technologies ? JSON.parse(row.technologies) : null,
+    showReadme: row.show_readme !== null ? !!row.show_readme : true
+  };
+}
+
+function getAllGitHubProjectMetadata() {
+  const stmt = db.prepare('SELECT * FROM github_project_metadata');
+  const rows = stmt.all();
+  
+  const map = {};
+  rows.forEach(row => {
+    map[row.project_key] = {
+      description: row.description,
+      technologies: row.technologies ? JSON.parse(row.technologies) : null,
+      showReadme: row.show_readme !== null ? !!row.show_readme : true
+    };
+  });
+  
+  return map;
+}
+
+// ====================
 // Exports
 // ====================
 
@@ -384,5 +451,10 @@ module.exports = {
   
   // Contact messages
   saveContactMessage: async (contact) => saveContactMessage(contact),
-  getContactMessages: async () => getContactMessages()
+  getContactMessages: async () => getContactMessages(),
+  
+  // GitHub project metadata
+  setGitHubProjectMetadata: async (projectKey, metadata) => setGitHubProjectMetadata(projectKey, metadata),
+  getGitHubProjectMetadata: async (projectKey) => getGitHubProjectMetadata(projectKey),
+  getAllGitHubProjectMetadata: async () => getAllGitHubProjectMetadata()
 };

@@ -66,12 +66,35 @@ function initDatabase() {
       timestamp TEXT DEFAULT CURRENT_TIMESTAMP
     );
 
+    -- GitHub project metadata (custom descriptions, etc.)
+    CREATE TABLE IF NOT EXISTS github_project_metadata (
+      project_key TEXT PRIMARY KEY, -- 'owner/repo' format
+      description TEXT,
+      technologies TEXT, -- JSON array
+      show_readme INTEGER DEFAULT 1, -- 1 = show README, 0 = hide README
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
     -- Create indexes for better query performance
     CREATE INDEX IF NOT EXISTS idx_images_project ON images(project);
     CREATE INDEX IF NOT EXISTS idx_images_is_primary ON images(is_primary);
     CREATE INDEX IF NOT EXISTS idx_project_visibility ON project_visibility(visible);
     CREATE INDEX IF NOT EXISTS idx_contact_timestamp ON contact_messages(timestamp DESC);
   `);
+
+  // Migrations: Add show_readme column if it doesn't exist
+  try {
+    const tableInfo = db.pragma('table_info(github_project_metadata)');
+    const hasShowReadme = tableInfo.some((col) => col.name === 'show_readme');
+    
+    if (!hasShowReadme) {
+      console.log('Adding show_readme column to github_project_metadata...');
+      db.exec('ALTER TABLE github_project_metadata ADD COLUMN show_readme INTEGER DEFAULT 1');
+      console.log('✓ Migration completed: show_readme column added');
+    }
+  } catch (err) {
+    console.warn('Migration warning:', err.message);
+  }
 
   console.log('✓ SQLite database initialized at:', dbPath);
 }

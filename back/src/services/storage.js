@@ -341,5 +341,81 @@ module.exports = {
     }
     memory.contactMessages = memory.contactMessages || [];
     return memory.contactMessages.slice(0, 100).reverse();
+  },
+
+  // GitHub project metadata (custom descriptions, etc.)
+  setGitHubProjectMetadata: async (projectKey, metadata) => {
+    if (!projectKey) return false;
+    if (redisClient) {
+      const key = `github_metadata`;
+      const data = await redisClient.get(key) || '{}';
+      const map = JSON.parse(data);
+      map[projectKey] = metadata;
+      await redisClient.set(key, JSON.stringify(map));
+      return true;
+    }
+    memory.githubMetadata = memory.githubMetadata || {};
+    memory.githubMetadata[projectKey] = metadata;
+    return true;
+  },
+
+  getGitHubProjectMetadata: async (projectKey) => {
+    if (!projectKey) return null;
+    if (redisClient) {
+      const key = `github_metadata`;
+      const data = await redisClient.get(key) || '{}';
+      const map = JSON.parse(data);
+      return map[projectKey] || null;
+    }
+    memory.githubMetadata = memory.githubMetadata || {};
+    return memory.githubMetadata[projectKey] || null;
+  },
+
+  getAllGitHubProjectMetadata: async () => {
+    if (redisClient) {
+      const key = `github_metadata`;
+      const data = await redisClient.get(key) || '{}';
+      return JSON.parse(data);
+    }
+    memory.githubMetadata = memory.githubMetadata || {};
+    return { ...memory.githubMetadata };
+  },
+
+  // Project tags
+  setProjectTags: async (key, tags) => {
+    if (!key) return false;
+    if (redisClient) {
+      const k = `project_tags`;
+      const data = await redisClient.get(k) || '{}';
+      const map = JSON.parse(data);
+      map[key] = tags;
+      await redisClient.set(k, JSON.stringify(map));
+      return true;
+    }
+    memory.projectTags = memory.projectTags || {};
+    memory.projectTags[key] = tags;
+    return true;
+  },
+
+  getProjectTags: async (key) => {
+    if (!key) return null;
+    if (redisClient) {
+      const k = `project_tags`;
+      const data = await redisClient.get(k) || '{}';
+      const map = JSON.parse(data);
+      return map[key] || null;
+    }
+    memory.projectTags = memory.projectTags || {};
+    return memory.projectTags[key] || null;
+  },
+
+  getAllProjectTags: async () => {
+    if (redisClient) {
+      const k = `project_tags`;
+      const data = await redisClient.get(k) || '{}';
+      return JSON.parse(data);
+    }
+    memory.projectTags = memory.projectTags || {};
+    return { ...memory.projectTags };
   }
 };

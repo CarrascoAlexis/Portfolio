@@ -124,4 +124,27 @@ router.post('/tags', requireAdmin, async (req, res) => {
   }
 });
 
+// admin: update GitHub project metadata (description, technologies)
+router.post('/projects/github/metadata', requireAdmin, async (req, res) => {
+  try {
+    const { projectKey, description, technologies, showReadme } = req.body;
+    
+    if (!projectKey) {
+      return res.status(400).json({ ok: false, error: 'projectKey required' });
+    }
+    
+    const metadata = {};
+    if (description !== undefined) metadata.description = description;
+    if (technologies !== undefined) metadata.technologies = technologies;
+    if (showReadme !== undefined) metadata.showReadme = showReadme;
+    
+    await storage.setGitHubProjectMetadata(projectKey, metadata);
+    
+    res.json({ ok: true, message: 'Metadata updated' });
+  } catch (err) {
+    console.error('admin update github metadata error', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 module.exports = router;
