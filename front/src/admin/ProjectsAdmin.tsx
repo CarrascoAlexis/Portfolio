@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import ProjectModal from '../components/ProjectModal';
 
 type Project = any;
@@ -7,8 +8,7 @@ export default function AdminProjects() {
   const [githubProjects, setGithubProjects] = useState<Project[]>([]);
   const [manualProjects, setManualProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
-  const [title, setTitle] = useState('');
-  const [desc, setDesc] = useState('');
+  // project creation moved to a dedicated page
   const [visMap, setVisMap] = useState<Record<string, boolean>>({});
 
   const [modalProject, setModalProject] = useState<any | null>(null);
@@ -54,17 +54,7 @@ export default function AdminProjects() {
 
   useEffect(() => { loadAll(); }, []);
 
-  async function create() {
-    try {
-      const res = await fetch('http://localhost:4000/api/admin/projects/manual', {
-        method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: title, description: desc })
-      });
-      if (!res.ok) throw new Error('Create failed');
-      await loadAll();
-      setTitle(''); setDesc('');
-    } catch (e) { console.error(e); }
-  }
+  // project creation is handled on a separate admin page
 
   async function remove(id: string) {
     if (!confirm('Supprimer ce projet ?')) return;
@@ -131,9 +121,7 @@ export default function AdminProjects() {
       <p>Affiche les projets GitHub publics et les projets manuels.</p>
 
       <div style={{ marginBottom: 12 }}>
-        <input placeholder="Titre (manual)" value={title} onChange={e => setTitle(e.target.value)} />
-        <input placeholder="Description" value={desc} onChange={e => setDesc(e.target.value)} />
-        <button onClick={create} className="btn">Ajouter manuel</button>
+        <Link to="/admin/projects/new"><button className="btn">Créer un projet</button></Link>
       </div>
 
       {loading && <p>Chargement…</p>}

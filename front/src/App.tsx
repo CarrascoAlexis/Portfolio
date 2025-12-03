@@ -17,6 +17,7 @@ import AdminDashboard from './admin/Dashboard';
 import AdminProjects from './admin/ProjectsAdmin';
 import AdminImages from './admin/ImagesAdmin';
 import RequireAuth from './admin/RequireAuth';
+import CreateProject from './admin/CreateProject';
 import './App.css';
 
 function App() {
@@ -215,6 +216,7 @@ function App() {
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<RequireAuth><AdminDashboard /></RequireAuth>} />
             <Route path="/admin/projects" element={<RequireAuth><AdminProjects /></RequireAuth>} />
+            <Route path="/admin/projects/new" element={<RequireAuth><CreateProject /></RequireAuth>} />
             <Route path="/admin/images" element={<RequireAuth><AdminImages /></RequireAuth>} />
           </Routes>
         </main>
