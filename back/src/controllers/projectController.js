@@ -1,8 +1,9 @@
 const github = require('../services/github');
 const storage = require('../services/storage');
+const config = require('../config');
 
 async function list(req, res) {
-  const user = req.query.user || process.env.GITHUB_USERNAME;
+  const user = req.query.user || config.githubUsername;
   const force = req.query.refresh === '1' || req.query.force === '1';
   if (!user) return res.status(400).json({ ok: false, error: 'GitHub username not provided (query ?user= or GITHUB_USERNAME env)' });
 
