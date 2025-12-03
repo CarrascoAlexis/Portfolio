@@ -69,14 +69,14 @@ export default function Portfolio() {
         if (!res.ok) throw new Error(`API error ${res.status}`);
         const body = await res.json();
         if (cancelled) return;
-        const apiProjects = (body.projects || []).map((p: any, i: number) => ({
-          id: p.id || `${i}-${p.full_name}`,
-          title: p.name || p.full_name,
-          description: p.description || '',
-          technologies: p.language ? [p.language] : [],
+        const apiProjects = (body.projects || []).map((project: any, i: number) => ({
+          id: project.id || `${i}-${project.full_name}`,
+          title: project.name || project.full_name,
+          description: project.description || '',
+          technologies: project.language ? [project.language] : [],
           category: 'web',
-          image: p.html_url ? '🔗' : '📦',
-          url: p.html_url || p.url || p.clone_url
+          image: project.html_url ? '🔗' : '📦',
+          url: project.html_url || project.url || project.clone_url
         }));
         setProjects(apiProjects.length ? apiProjects : fallbackProjects);
       } catch (err: any) {
@@ -93,7 +93,7 @@ export default function Portfolio() {
 
   const filteredProjects = filter === 'all'
     ? projects
-    : projects.filter(p => p.category === filter);
+    : projects.filter(project => project.category === filter);
 
   return (
     <div className="portfolio">
