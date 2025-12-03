@@ -4,3 +4,4 @@ dist/
 logs/
 back/config.json
 package-lock.json
+uploads/

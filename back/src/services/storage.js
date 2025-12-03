@@ -23,6 +23,9 @@ const memory = {
   games: {}
 };
 
+// images cache (in-memory fallback)
+memory.images = {};
+
 // add projects cache to memory storage
 memory.projects = {};
 
@@ -99,5 +102,30 @@ module.exports = {
       return data ? JSON.parse(data) : [];
     }
     return memory.projects[user] || [];
+  }
+  ,
+  // images
+  saveImage: async (project, imageMeta) => {
+    if (redisClient) {
+      const key = `images:${project || 'global'}`;
+      const list = JSON.stringify(imageMeta);
+      await redisClient.lpush(key, list);
+      await redisClient.ltrim(key, 0, 499);
+      return imageMeta;
+    }
+    const key = project || 'global';
+    memory.images[key] = memory.images[key] || [];
+    memory.images[key].unshift(imageMeta);
+    memory.images[key] = memory.images[key].slice(0, 500);
+    return imageMeta;
+  },
+  getImages: async (project) => {
+    const key = project || 'global';
+    if (redisClient) {
+      const redisKey = `images:${key}`;
+      const vals = await redisClient.lrange(redisKey, 0, 499);
+      return vals.map(v => JSON.parse(v)).reverse();
+    }
+    return (memory.images[key] || []).slice().reverse();
   }
 };
