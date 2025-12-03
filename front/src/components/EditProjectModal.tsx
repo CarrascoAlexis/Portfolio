@@ -19,28 +19,29 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
   const [description, setDescription] = useState(project.description || '');
   const [tags, setTags] = useState<string[]>(project.tags || []);
   const [visible, setVisible] = useState(initialVisible);
-  const [images, setImages] = useState<string[]>(project.images || []);
   
   const [tagInput, setTagInput] = useState('');
   const [busy, setBusy] = useState(false);
-  const [gallery, setGallery] = useState<string[]>([]);
+  const [projectImages, setProjectImages] = useState<any[]>([]);
 
   useEffect(() => {
-    // Load gallery for manual projects
-    if (!isGithub) {
-      (async () => {
-        try {
-          const res = await fetch('http://localhost:4000/api/images');
-          if (res.ok) {
-            const b = await res.json();
-            setGallery(b.images || []);
-          }
-        } catch (e) {
-          console.error('Failed to load gallery', e);
+    // Load all images and filter those linked to this project
+    (async () => {
+      try {
+        const res = await fetch('http://localhost:4000/api/admin/images', { credentials: 'include' });
+        if (res.ok) {
+          const b = await res.json();
+          const images = b.images || [];
+          
+          // Filter images linked to current project
+          const linked = images.filter((img: any) => img.project === projectKey);
+          setProjectImages(linked);
         }
-      })();
-    }
-  }, [isGithub]);
+      } catch (e) {
+        console.error('Failed to load images', e);
+      }
+    })();
+  }, [projectKey]);
 
   function addTag() {
     const trimmed = tagInput.trim();
@@ -54,8 +55,52 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
     setTags(tags.filter(t => t !== tag));
   }
 
-  function toggleImage(img: string) {
-    setImages(prev => prev.includes(img) ? prev.filter(i => i !== img) : [...prev, img]);
+  async function unlinkImage(filename: string) {
+    try {
+      const res = await fetch(`http://localhost:4000/api/admin/images/${encodeURIComponent(filename)}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project: null, isPrimary: false })
+      });
+      
+      if (res.ok) {
+        // Refresh images
+        const imgRes = await fetch('http://localhost:4000/api/admin/images', { credentials: 'include' });
+        if (imgRes.ok) {
+          const b = await imgRes.json();
+          const images = b.images || [];
+          const linked = images.filter((img: any) => img.project === projectKey);
+          setProjectImages(linked);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to unlink image', e);
+    }
+  }
+
+  async function setPrimaryImage(filename: string) {
+    try {
+      const res = await fetch(`http://localhost:4000/api/admin/images/${encodeURIComponent(filename)}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project: projectKey, isPrimary: true })
+      });
+      
+      if (res.ok) {
+        // Refresh images
+        const imgRes = await fetch('http://localhost:4000/api/admin/images', { credentials: 'include' });
+        if (imgRes.ok) {
+          const b = await imgRes.json();
+          const images = b.images || [];
+          const linked = images.filter((img: any) => img.project === projectKey);
+          setProjectImages(linked);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to set primary image', e);
+    }
   }
 
   async function handleSave() {
@@ -81,7 +126,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
           method: 'PUT',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, description, tags, images })
+          body: JSON.stringify({ name, description, tags })
         });
 
         if (!updateRes.ok) {
@@ -168,19 +213,91 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
           {!isGithub && (
             <div className="form-group">
               <label>Images du projet</label>
-              <div className="images-gallery">
-                {gallery.length === 0 && <p className="text-muted">Aucune image disponible</p>}
-                {gallery.map(img => (
-                  <div 
-                    key={img} 
-                    className={`gallery-item ${images.includes(img) ? 'selected' : ''}`}
-                    onClick={() => toggleImage(img)}
-                  >
-                    <img src={img} alt="gallery" />
-                    {images.includes(img) && <div className="selected-badge">✓</div>}
+              {projectImages.length === 0 ? (
+                <p className="text-muted">Aucune image liée à ce projet. Utilisez la page "Images" pour en ajouter.</p>
+              ) : (
+                <div className="project-images-list">
+                  {projectImages.map(img => (
+                    <div key={img.filename} className="project-image-item">
+                      <img 
+                        src={img.url.startsWith('/') ? `http://localhost:4000${img.url}` : img.url} 
+                        alt={img.originalname}
+                      />
+                      <div className="image-item-info">
+                        <span className="image-name">{img.originalname}</span>
+                        {img.isPrimary && <span className="badge-primary">★ Principale</span>}
+                      </div>
+                      <div className="image-item-actions">
+                        {!img.isPrimary && (
+                          <button 
+                            type="button" 
+                            className="btn-icon" 
+                            onClick={() => setPrimaryImage(img.filename)}
+                            title="Définir comme principale"
+                          >
+                            ★
+                          </button>
+                        )}
+                        <button 
+                          type="button" 
+                          className="btn-icon btn-danger" 
+                          onClick={() => unlinkImage(img.filename)}
+                          title="Retirer du projet"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="help-text" style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                💡 Pour ajouter des images à ce projet, allez dans la page <strong>Images</strong> et liez-les au projet "{name}".
+              </p>
+            </div>
+          )}
+
+          {/* Images pour projets GitHub (lecture seule) */}
+          {isGithub && projectImages.length > 0 && (
+            <div className="form-group">
+              <label>Images liées</label>
+              <div className="project-images-list">
+                {projectImages.map(img => (
+                  <div key={img.filename} className="project-image-item">
+                    <img 
+                      src={img.url.startsWith('/') ? `http://localhost:4000${img.url}` : img.url} 
+                      alt={img.originalname}
+                    />
+                    <div className="image-item-info">
+                      <span className="image-name">{img.originalname}</span>
+                      {img.isPrimary && <span className="badge-primary">★ Principale</span>}
+                    </div>
+                    <div className="image-item-actions">
+                      {!img.isPrimary && (
+                        <button 
+                          type="button" 
+                          className="btn-icon" 
+                          onClick={() => setPrimaryImage(img.filename)}
+                          title="Définir comme principale"
+                        >
+                          ★
+                        </button>
+                      )}
+                      <button 
+                        type="button" 
+                        className="btn-icon btn-danger" 
+                        onClick={() => unlinkImage(img.filename)}
+                        title="Retirer du projet"
+                      >
+                        ×
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
+              <p className="help-text" style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                💡 Pour ajouter des images, allez dans la page <strong>Images</strong>.
+              </p>
             </div>
           )}
 

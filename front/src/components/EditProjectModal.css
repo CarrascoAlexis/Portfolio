@@ -352,6 +352,106 @@
   font-size: 0.875rem;
 }
 
+.project-images-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: var(--bg-secondary);
+  border: 2px solid var(--line-color);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.project-image-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: var(--bg-primary);
+  border: 2px solid var(--line-color);
+  transition: all var(--transition-fast);
+}
+
+.project-image-item:hover {
+  border-color: var(--accent-secondary);
+}
+
+.project-image-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border: 2px solid var(--line-color);
+}
+
+.image-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.image-name {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.badge-primary {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  font-size: 0.625rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: fit-content;
+}
+
+.image-item-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--line-color);
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: var(--bg-primary);
+}
+
+.btn-icon.btn-danger {
+  color: #ff4444;
+  border-color: var(--line-color);
+}
+
+.btn-icon.btn-danger:hover {
+  background: #ff4444;
+  border-color: #ff4444;
+  color: var(--bg-primary);
+}
+
+.help-text {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
 @media (max-width: 768px) {
   .modal-content {
     max-height: 95vh;
