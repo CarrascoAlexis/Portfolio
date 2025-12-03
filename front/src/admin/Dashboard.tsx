@@ -36,35 +36,35 @@ export default function AdminDashboard() {
 
   return (
     <div className="container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-        <div>
-          <h1 style={{ margin: 0 }}>Admin</h1>
-          <p style={{ marginTop: 6, color: '#999' }}>Bienvenue dans le panneau d'administration.</p>
+      <div className="hero" style={{ paddingTop: '1rem', paddingBottom: '0.5rem' }}>
+        <div className="hero-content">
+          <h1 className="hero-title">Admin</h1>
+          <p className="hero-subtitle">Gérez vos projets et images. Statistiques rapides et accès aux outils.</p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Link to="/admin/projects/new"><button className="btn">Créer un projet</button></Link>
-          <Link to="/admin/projects"><button className="btn">Gérer projets</button></Link>
-          <Link to="/admin/images"><button className="btn">Gérer images</button></Link>
+        <div className="hero-actions" style={{ alignSelf: 'center' }}>
+          <Link to="/admin/projects/new"><button className="btn btn-primary">Créer un projet</button></Link>
+          <Link to="/admin/projects"><button className="btn btn-secondary">Gérer projets</button></Link>
+          <Link to="/admin/images"><button className="btn btn-secondary">Gérer images</button></Link>
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 12, marginTop: 18, flexWrap: 'wrap' }}>
-        <div style={{ flex: '1 1 200px', padding: 12, borderRadius: 8, background: 'linear-gradient(180deg,#0f1724,#071226)', color: '#fff', boxShadow: '0 4px 14px rgba(2,6,23,0.6)' }}>
-          <div style={{ fontSize: 12, color: '#9ad8ff' }}>Nombre de projets</div>
+      <div className="skills-grid" style={{ marginTop: '1rem' }}>
+        <div className="stat-card skill-card">
+          <div style={{ fontSize: 12, color: 'var(--accent-subtle)' }}>Nombre de projets</div>
           <div style={{ fontSize: 28, fontWeight: 700, marginTop: 6 }}>{loading ? '…' : total}</div>
         </div>
 
-        <div style={{ flex: '1 1 320px', padding: 12, borderRadius: 8, background: '#fff', boxShadow: '0 4px 14px rgba(2,6,23,0.06)' }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#222' }}>Projets récents</div>
-          <div style={{ marginTop: 8 }}>
-            {recent.length === 0 && <div style={{ color: '#666' }}>{loading ? 'Chargement…' : 'Aucun projet trouvé'}</div>}
+        <div className="skill-card">
+          <h3>Projets récents</h3>
+          <div>
+            {recent.length === 0 && <div style={{ color: 'var(--text-muted)' }}>{loading ? 'Chargement…' : 'Aucun projet trouvé'}</div>}
             {recent.map((p: any) => (
-              <div key={(p.id || p.full_name || p.name) + ''} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}>
+              <div key={(p.id || p.full_name || p.name) + ''} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px dashed var(--border-color)' }}>
                 <div>
-                  <div style={{ fontWeight: 600 }}>{p.name || p.title || p.full_name}</div>
-                  <div style={{ fontSize: 12, color: '#777' }}>{p._source || (p.full_name ? 'github' : 'manual')}</div>
+                  <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{p.name || p.title || p.full_name}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{p._source || (p.full_name ? 'github' : 'manual')}</div>
                 </div>
-                <div style={{ fontSize: 12, color: '#888' }}>{new Date(p.created_at || p.createdAt || p.pushed_at || p.updated_at || Date.now()).toLocaleDateString()}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(p.created_at || p.createdAt || p.pushed_at || p.updated_at || Date.now()).toLocaleDateString()}</div>
               </div>
             ))}
           </div>
