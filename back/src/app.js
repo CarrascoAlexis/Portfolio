@@ -20,7 +20,8 @@ const corsOptions = {
       'http://localhost:3000',
       'http://localhost:80',
       'http://localhost:5173',
-      'http://raspberry.distant'
+      'http://raspberry.distant',
+      'http://86.252.87.194:80'
     ];
     
     if (allowedOrigins.includes(origin) || origin.includes('localhost') || origin.includes('raspberry')) {
