@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import ProjectModal from '../components/ProjectModal';
 import './Portfolio.css';
 
 const categories = ['all', 'web', 'mobile', 'dashboard'];
@@ -72,58 +71,7 @@ export default function Portfolio() {
     ? projects
     : projects.filter(project => project.category === filter);
 
-  const [modalProject, setModalProject] = useState<any | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalVisibility, setModalVisibility] = useState<boolean | null>(null);
-  const [modalBusy, setModalBusy] = useState(false);
-
-  async function openModal(project: any) {
-    setModalProject(project);
-    setModalVisible(true);
-    // determine visibility key
-    try {
-      const key = project._source === 'github' ? `github:${project.full_name}` : `manual:${project.id}`;
-      const res = await fetch(`http://localhost:4000/api/projects/visibility?project=${encodeURIComponent(key)}`);
-      if (!res.ok) {
-        setModalVisibility(null);
-        return;
-      }
-      const b = await res.json();
-      setModalVisibility(b.hasOwnProperty('visible') ? b.visible : null);
-    } catch (e) {
-      setModalVisibility(null);
-    }
-  }
-
-  function closeModal() {
-    setModalVisible(false);
-    setModalProject(null);
-    setModalVisibility(null);
-  }
-
-  async function toggleVisibility() {
-    if (!modalProject) return;
-    const key = modalProject._source === 'github' ? `github:${modalProject.full_name}` : `manual:${modalProject.id}`;
-    const newVal = !(modalVisibility === true);
-    setModalBusy(true);
-    try {
-      const res = await fetch('http://localhost:4000/api/admin/visibility', {
-        method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project: key, visible: newVal })
-      });
-      if (!res.ok) {
-        const b = await res.json().catch(() => ({}));
-        alert(b.error || 'Not authorized');
-        setModalBusy(false);
-        return;
-      }
-      setModalVisibility(newVal);
-    } catch (e) {
-      alert('Network error');
-    } finally {
-      setModalBusy(false);
-    }
-  }
+  // Public page does not open modal — modal is admin-only. Public cards link to internal project page.
 
   return (
     <div className="portfolio">
@@ -153,12 +101,14 @@ export default function Portfolio() {
 
           <div className="projects-grid">
             {filteredProjects.map(project => (
-              <div key={project.id} className="project-card" onClick={() => openModal(project)} style={{ cursor: 'pointer' }}>
+              <div key={project.id} className="project-card">
                 <div className="project-image">
                   <span className="project-emoji">{project.image}</span>
                 </div>
                 <div className="project-content">
-                  <h3>{project.title}</h3>
+                  <h3>
+                    <Link to={`/projects/${encodeURIComponent(project.title)}`}>{project.title}</Link>
+                  </h3>
                   <p>{project.description}</p>
                   <div className="project-tech">
                     {project.technologies.map((tech: string, i: number) => (
@@ -176,16 +126,6 @@ export default function Portfolio() {
               </div>
             ))}
           </div>
-
-          {/* Modal */}
-          <ProjectModal
-            project={modalProject}
-            visible={!!modalVisible}
-            onClose={closeModal}
-            onToggleVisibility={toggleVisibility}
-            visibility={modalVisibility}
-            busy={modalBusy}
-          />
         </div>
       </section>
     </div>
