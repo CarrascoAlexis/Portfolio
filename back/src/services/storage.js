@@ -23,6 +23,9 @@ const memory = {
   games: {}
 };
 
+// add projects cache to memory storage
+memory.projects = {};
+
 async function saveMessage(room, message) {
   if (redisClient) {
     const key = `messages:${room}`;
@@ -78,4 +81,23 @@ module.exports = {
   getMessages,
   saveGame,
   getGame,
+  // projects
+  saveProjects: async (user, projects) => {
+    if (redisClient) {
+      const key = `projects:${user}`;
+      await redisClient.set(key, JSON.stringify(projects));
+      return projects;
+    }
+    memory.projects[user] = projects;
+    return memory.projects[user];
+  },
+  getProjects: async (user) => {
+    if (!user) return [];
+    if (redisClient) {
+      const key = `projects:${user}`;
+      const data = await redisClient.get(key);
+      return data ? JSON.parse(data) : [];
+    }
+    return memory.projects[user] || [];
+  }
 };
