@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Portfolio.css';
 
-const categories = ['all', 'web', 'mobile', 'dashboard'];
-
 export default function Portfolio() {
-  const [filter, setFilter] = useState('all');
+  const [selectedTag, setSelectedTag] = useState<string>('all');
   const [projects, setProjects] = useState<any[]>([]);
+  const [allTags, setAllTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,6 +45,7 @@ export default function Portfolio() {
             id: project.id || `${i}-${project.full_name || project.name}`,
             title: project.name || project.title || project.full_name,
             description: project.description || project._raw?.description || '',
+            tags: project.tags || [],
             technologies: project.language ? [project.language] : (project._raw?.technologies || []),
             category: project.category || (project._raw?.category) || 'web',
             image: primaryImage?.url || project.image || (project.html_url ? '🔗' : '📦'),
@@ -63,6 +63,13 @@ export default function Portfolio() {
           setProjects([]);
         } else {
           setProjects(apiProjects);
+          
+          // Extract all unique tags from projects
+          const tagsSet = new Set<string>();
+          apiProjects.forEach(p => {
+            (p.tags || []).forEach((tag: string) => tagsSet.add(tag));
+          });
+          setAllTags(Array.from(tagsSet).sort());
         }
       } catch (err: any) {
         console.warn('Failed to load projects from API', err);
@@ -76,9 +83,9 @@ export default function Portfolio() {
     return () => { cancelled = true; };
   }, []);
 
-  const filteredProjects = filter === 'all'
+  const filteredProjects = selectedTag === 'all'
     ? projects
-    : projects.filter(project => project.category === filter);
+    : projects.filter(project => (project.tags || []).includes(selectedTag));
 
   // Public page does not open modal — modal is admin-only. Public cards link to internal project page.
 
@@ -94,13 +101,20 @@ export default function Portfolio() {
       <section className="portfolio-content">
         <div className="container">
           <div className="portfolio-filters">
-            {categories.map(cat => (
+            <button
+              key="all"
+              className={`filter-btn ${selectedTag === 'all' ? 'active' : ''}`}
+              onClick={() => setSelectedTag('all')}
+            >
+              Tous
+            </button>
+            {allTags.map(tag => (
               <button
-                key={cat}
-                className={`filter-btn ${filter === cat ? 'active' : ''}`}
-                onClick={() => setFilter(cat)}
+                key={tag}
+                className={`filter-btn ${selectedTag === tag ? 'active' : ''}`}
+                onClick={() => setSelectedTag(tag)}
               >
-                {cat === 'all' ? 'Tous' : cat.charAt(0).toUpperCase() + cat.slice(1)}
+                {tag}
               </button>
             ))}
           </div>
@@ -113,7 +127,7 @@ export default function Portfolio() {
               <div key={project.id} className="project-card">
                 <div className="project-image">
                   {project.imageUrl ? (
-                    <img 
+                    <img
                       src={project.imageUrl.startsWith('/') ? `http://localhost:4000${project.imageUrl}` : project.imageUrl} 
                       alt={project.title}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -127,11 +141,13 @@ export default function Portfolio() {
                     <Link to={`/projects/${encodeURIComponent(project.title)}`}>{project.title}</Link>
                   </h3>
                   <p>{project.description}</p>
-                  <div className="project-tech">
-                    {project.technologies.map((tech: string, i: number) => (
-                      <span key={i} className="tech-badge">{tech}</span>
-                    ))}
-                  </div>
+                  {project.tags && project.tags.length > 0 && (
+                    <div className="project-tech">
+                      {project.tags.map((tag: string, i: number) => (
+                        <span key={i} className="tech-badge">{tag}</span>
+                      ))}
+                    </div>
+                  )}
                   <div className="project-links">
                     <Link className="project-link" to={`/projects/${encodeURIComponent(project.title)}`}>Voir le projet →</Link>
                     {project.url && (
