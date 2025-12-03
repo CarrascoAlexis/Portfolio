@@ -17,24 +17,42 @@ export default function Portfolio() {
       setError(null);
       try {
         // load only visible projects (combined GitHub + manual) from API
-        const res = await fetch('http://localhost:4000/api/projects?visible=1');
-        if (!res.ok) throw new Error(`API error ${res.status}`);
-        const body = await res.json();
+        const [projRes, imgRes] = await Promise.all([
+          fetch('http://localhost:4000/api/projects?visible=1'),
+          fetch('http://localhost:4000/api/images')
+        ]);
+        
+        if (!projRes.ok) throw new Error(`API error ${projRes.status}`);
+        const body = await projRes.json();
+        
+        let allImages: any[] = [];
+        if (imgRes.ok) {
+          const imgBody = await imgRes.json();
+          allImages = imgBody.images || [];
+        }
+        
         if (cancelled) return;
         // API now returns combined projects (manual + github) filtered by visibility
-        const apiProjects = (body.projects || []).map((project: any, i: number) => ({
-          id: project.id || `${i}-${project.full_name || project.name}`,
-          title: project.name || project.title || project.full_name,
-          description: project.description || project._raw?.description || '',
-          technologies: project.language ? [project.language] : (project._raw?.technologies || []),
-          category: project.category || (project._raw?.category) || 'web',
-          image: project.image || (project.html_url ? '🔗' : '📦'),
-          url: project.html_url || project.url || project.clone_url || null,
-          full_name: project.full_name || (project._raw && project._raw.owner && `${project._raw.owner}/${project._raw.name}`) || null,
-          _source: project._source || (project._raw ? 'manual' : 'github'),
-          visible: project.visible !== undefined ? project.visible : true,
-          _raw: project._raw || null
-        }));
+        const apiProjects = (body.projects || []).map((project: any, i: number) => {
+          const projectKey = project.full_name || `manual:${project.id}`;
+          // Find primary image for this project
+          const primaryImage = allImages.find(img => img.project === projectKey && img.isPrimary);
+          
+          return {
+            id: project.id || `${i}-${project.full_name || project.name}`,
+            title: project.name || project.title || project.full_name,
+            description: project.description || project._raw?.description || '',
+            technologies: project.language ? [project.language] : (project._raw?.technologies || []),
+            category: project.category || (project._raw?.category) || 'web',
+            image: primaryImage?.url || project.image || (project.html_url ? '🔗' : '📦'),
+            imageUrl: primaryImage?.url || null,
+            url: project.html_url || project.url || project.clone_url || null,
+            full_name: project.full_name || (project._raw && project._raw.owner && `${project._raw.owner}/${project._raw.name}`) || null,
+            _source: project._source || (project._raw ? 'manual' : 'github'),
+            visible: project.visible !== undefined ? project.visible : true,
+            _raw: project._raw || null
+          };
+        });
 
         if (apiProjects.length === 0) {
           setError('Aucun projet trouvé.');
@@ -90,7 +108,15 @@ export default function Portfolio() {
             {filteredProjects.map(project => (
               <div key={project.id} className="project-card">
                 <div className="project-image">
-                  <span className="project-emoji">{project.image}</span>
+                  {project.imageUrl ? (
+                    <img 
+                      src={project.imageUrl.startsWith('/') ? `http://localhost:4000${project.imageUrl}` : project.imageUrl} 
+                      alt={project.title}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <span className="project-emoji">{project.image}</span>
+                  )}
                 </div>
                 <div className="project-content">
                   <h3>

@@ -183,11 +183,14 @@ export default function AdminImages() {
             </div>
             <div className="image-info">
               <div className="image-name">{img.originalname}</div>
-              {img.project && (
-                <div className="image-project">
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.25rem' }}>
+                {img.project && (
                   <span className="badge badge-project">{img.project}</span>
-                </div>
-              )}
+                )}
+                {img.isPrimary && (
+                  <span className="badge badge-primary" style={{ background: 'var(--accent-primary)', color: 'var(--bg-primary)', borderColor: 'var(--accent-primary)' }}>★ Principale</span>
+                )}
+              </div>
             </div>
           </div>
         ))}

@@ -269,5 +269,43 @@ module.exports = {
       }
     });
     return true;
+  },
+
+  getAllImages: async () => {
+    // Return all images across all projects
+    if (redisClient) {
+      const keys = await redisClient.keys('images:*');
+      const allImages = [];
+      for (const k of keys) {
+        const vals = await redisClient.lrange(k, 0, 499);
+        allImages.push(...vals.map(v => JSON.parse(v)));
+      }
+      return allImages;
+    }
+    // In-memory: collect from all keys
+    const allImages = [];
+    Object.keys(memory.images).forEach(k => {
+      allImages.push(...(memory.images[k] || []));
+    });
+    return allImages;
+  },
+
+  clearPrimaryForProject: async (project) => {
+    // Clear isPrimary flag for all images of this project
+    if (redisClient) {
+      const key = `images:${project}`;
+      const vals = await redisClient.lrange(key, 0, 499);
+      const items = vals.map(v => JSON.parse(v));
+      await redisClient.del(key);
+      for (const item of items) {
+        item.isPrimary = false;
+        await redisClient.lpush(key, JSON.stringify(item));
+      }
+      return true;
+    }
+    // In-memory
+    const imgs = memory.images[project] || [];
+    imgs.forEach(img => { img.isPrimary = false; });
+    return true;
   }
 };

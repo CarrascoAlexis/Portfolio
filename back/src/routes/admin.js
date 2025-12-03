@@ -40,8 +40,8 @@ router.delete('/projects/manual/:id', requireAdmin, async (req, res) => {
 
 // Images management
 router.get('/images', requireAdmin, async (req, res) => {
-  const project = req.query.project || null;
-  const images = await storage.getImages(project);
+  // Admin endpoint returns ALL images (no filter)
+  const images = await storage.getAllImages();
   res.json({ ok: true, images });
 });
 
@@ -62,8 +62,16 @@ router.delete('/images/:filename', requireAdmin, async (req, res) => {
 router.put('/images/:filename', requireAdmin, async (req, res) => {
   try {
     const filename = req.params.filename;
-    const { project } = req.body || {};
-    await storage.updateImageMetadata(filename, { project: project || null });
+    const { project, isPrimary } = req.body || {};
+    const updates = { project: project || null };
+    if (isPrimary !== undefined) {
+      updates.isPrimary = !!isPrimary;
+      // If setting as primary, unset other primary images for same project
+      if (isPrimary && project) {
+        await storage.clearPrimaryForProject(project);
+      }
+    }
+    await storage.updateImageMetadata(filename, updates);
     res.json({ ok: true });
   } catch (err) {
     console.error('admin update image error', err);

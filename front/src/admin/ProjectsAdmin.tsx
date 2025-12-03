@@ -64,7 +64,7 @@ export default function AdminProjects() {
         method: 'DELETE', 
         credentials: 'include' 
       });
-      if (res.ok) {
+      if (res.ok) { 
         await loadAll();
         closeEdit();
       } else {

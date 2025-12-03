@@ -11,17 +11,18 @@ type EditImageModalProps = {
 
 export default function EditImageModal({ image, projects, onClose, onSave, onDelete }: EditImageModalProps) {
   const [project, setProject] = useState(image.project || '');
+  const [isPrimary, setIsPrimary] = useState(!!image.isPrimary);
   const [busy, setBusy] = useState(false);
 
   async function handleSave() {
     setBusy(true);
     try {
-      // Update image metadata (project link)
+      // Update image metadata (project link and primary status)
       const res = await fetch(`http://localhost:4000/api/admin/images/${encodeURIComponent(image.filename)}`, {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project: project || null })
+        body: JSON.stringify({ project: project || null, isPrimary })
       });
 
       if (!res.ok) {
@@ -72,6 +73,31 @@ export default function EditImageModal({ image, projects, onClose, onSave, onDel
               })}
             </select>
           </div>
+
+          {project && (
+            <div className="form-group">
+              <label>Image principale du projet</label>
+              <div className="visibility-toggle">
+                <button
+                  type="button"
+                  className={`toggle-option ${isPrimary ? 'active' : ''}`}
+                  onClick={() => setIsPrimary(true)}
+                >
+                  Principale
+                </button>
+                <button
+                  type="button"
+                  className={`toggle-option ${!isPrimary ? 'active' : ''}`}
+                  onClick={() => setIsPrimary(false)}
+                >
+                  Secondaire
+                </button>
+              </div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                L'image principale s'affichera sur la carte du projet dans la liste.
+              </p>
+            </div>
+          )}
 
           <div className="info-box">
             <p><strong>Taille :</strong> {(image.size / 1024).toFixed(1)} Ko</p>
