@@ -218,3 +218,111 @@
     font-size: 0.8rem;
   }
 }
+
+/* README markdown styles */
+.readme-content {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.readme-content h1,
+.readme-content h2,
+.readme-content h3,
+.readme-content h4,
+.readme-content h5,
+.readme-content h6 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  border-bottom: 1px solid var(--line-color);
+  padding-bottom: 8px;
+}
+
+.readme-content h1 { font-size: 2em; }
+.readme-content h2 { font-size: 1.5em; }
+.readme-content h3 { font-size: 1.25em; }
+
+.readme-content p {
+  margin-bottom: 16px;
+}
+
+.readme-content code {
+  background: rgba(0, 0, 0, 0.08);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.readme-content pre {
+  background: rgba(0, 0, 0, 0.08);
+  padding: 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+
+.readme-content pre code {
+  background: none;
+  padding: 0;
+}
+
+.readme-content ul,
+.readme-content ol {
+  margin-bottom: 16px;
+  padding-left: 2em;
+}
+
+.readme-content li {
+  margin-bottom: 8px;
+}
+
+.readme-content a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+.readme-content a:hover {
+  text-decoration: underline;
+}
+
+.readme-content blockquote {
+  border-left: 4px solid var(--line-color);
+  padding-left: 16px;
+  margin-left: 0;
+  margin-bottom: 16px;
+  color: var(--text-secondary);
+}
+
+.readme-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.readme-content table th,
+.readme-content table td {
+  border: 1px solid var(--line-color);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.readme-content table th {
+  background: rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+}
+
+.readme-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 16px 0;
+}
+
+.readme-content hr {
+  border: none;
+  border-top: 1px solid var(--line-color);
+  margin: 24px 0;
+}

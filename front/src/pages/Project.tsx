@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 import './Portfolio.css';
 import ImageCarousel from '../components/ImageCarousel';
 
@@ -126,7 +127,15 @@ export default function Project() {
         <div style={{ margin: '12px 0' }}>
           <strong>README:</strong>
           {readme ? (
-            <pre style={{ whiteSpace: 'pre-wrap', background: 'rgba(0,0,0,0.04)', padding: 12, borderRadius: 6 }}>{readme}</pre>
+            <div className="readme-content" style={{ 
+              marginTop: '12px', 
+              background: 'rgba(0,0,0,0.04)', 
+              padding: '16px', 
+              borderRadius: '6px',
+              border: '1px solid var(--line-color)'
+            }}>
+              <ReactMarkdown>{readme}</ReactMarkdown>
+            </div>
           ) : (
             <p className="muted">Aucun README disponible.</p>
           )}
