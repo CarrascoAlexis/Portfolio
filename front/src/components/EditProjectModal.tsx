@@ -19,6 +19,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
   const [description, setDescription] = useState(project.description || '');
   const [tags, setTags] = useState<string[]>(project.tags || []);
   const [visible, setVisible] = useState(initialVisible);
+  const [showReadme, setShowReadme] = useState(project.showReadme !== false); // default true
   
   const [tagInput, setTagInput] = useState('');
   const [busy, setBusy] = useState(false);
@@ -179,6 +180,25 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
 
         if (!updateRes.ok) {
           alert('Erreur lors de la mise à jour du projet');
+          setBusy(false);
+          return;
+        }
+      } else {
+        // For GitHub projects, save description and technologies as metadata
+        const metadataRes = await fetch('http://localhost:4000/api/admin/projects/github/metadata', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            projectKey: project.full_name,
+            description,
+            technologies: tags,
+            showReadme
+          })
+        });
+
+        if (!metadataRes.ok) {
+          alert('Erreur lors de la mise à jour des métadonnées GitHub');
           setBusy(false);
           return;
         }
@@ -412,6 +432,29 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
               </button>
             </div>
           </div>
+
+          {/* Affichage README (GitHub seulement) */}
+          {isGithub && (
+            <div className="form-group">
+              <label>Afficher le README</label>
+              <div className="visibility-toggle">
+                <button
+                  type="button"
+                  className={`toggle-option ${showReadme ? 'active' : ''}`}
+                  onClick={() => setShowReadme(true)}
+                >
+                  Afficher
+                </button>
+                <button
+                  type="button"
+                  className={`toggle-option ${!showReadme ? 'active' : ''}`}
+                  onClick={() => setShowReadme(false)}
+                >
+                  Masquer
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Info GitHub */}
           {isGithub && (
