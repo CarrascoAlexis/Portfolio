@@ -1,50 +1,38 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import ProjectModal from '../components/ProjectModal';
+import EditProjectModal from '../components/EditProjectModal';
+import './ProjectsAdmin.css';
 
 type Project = any;
 
 export default function AdminProjects() {
-  const [githubProjects, setGithubProjects] = useState<Project[]>([]);
-  const [manualProjects, setManualProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
-  // project creation moved to a dedicated page
   const [visMap, setVisMap] = useState<Record<string, boolean>>({});
-
-  const [modalProject, setModalProject] = useState<any | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalVisibility, setModalVisibility] = useState<boolean | null>(null);
-  const [modalBusy, setModalBusy] = useState(false);
+  const [filter, setFilter] = useState<'all' | 'github' | 'manual'>('all');
+  
+  const [editingProject, setEditingProject] = useState<any | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   async function loadAll() {
     setLoading(true);
     try {
       // GitHub projects (public)
       const gh = await fetch('http://localhost:4000/api/projects');
-      if (gh.ok) {
-        const b = await gh.json();
-        const list = (b.projects || []).map((p: any) => ({ ...p, _source: 'github' }));
-        setGithubProjects(list);
-      } else {
-        setGithubProjects([]);
-      }
+      const ghList = gh.ok ? ((await gh.json()).projects || []).map((p: any) => ({ ...p, _source: 'github' })) : [];
 
       // manual projects (admin)
       const manual = await fetch('http://localhost:4000/api/admin/projects/manual', { credentials: 'include' });
-      if (manual.ok) {
-        const bm = await manual.json();
-        const mlist = (bm.projects || []).map((p: any) => ({ ...p, _source: 'manual' }));
-        setManualProjects(mlist);
-      } else {
-        setManualProjects([]);
-      }
+      const manualList = manual.ok ? ((await manual.json()).projects || []).map((p: any) => ({ ...p, _source: 'manual' })) : [];
 
-      // load visibilities (all)
+      // load visibilities
       const vis = await fetch('http://localhost:4000/api/projects/visibility');
       if (vis.ok) {
         const bv = await vis.json();
         setVisMap(bv.visibility || {});
       }
+
+      setProjects([...manualList, ...ghList]);
     } catch (e) {
       console.error('loadAll error', e);
     } finally {
@@ -54,131 +42,152 @@ export default function AdminProjects() {
 
   useEffect(() => { loadAll(); }, []);
 
-  // project creation is handled on a separate admin page
-
-  async function remove(id: string) {
-    if (!confirm('Supprimer ce projet ?')) return;
-    try {
-      await fetch(`http://localhost:4000/api/admin/projects/manual/${id}`, { method: 'DELETE', credentials: 'include' });
-      await loadAll();
-    } catch (e) { console.error(e); }
+  function openEdit(project: any) {
+    setEditingProject(project);
+    setModalOpen(true);
   }
 
-  async function toggleVisibility(key: string) {
+  function closeEdit() {
+    setModalOpen(false);
+    setEditingProject(null);
+  }
+
+  async function handleSave() {
+    await loadAll();
+    closeEdit();
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm('Supprimer ce projet manuel ?')) return;
     try {
-      const newVal = !visMap[key];
-      const res = await fetch('http://localhost:4000/api/admin/visibility', {
-        method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project: key, visible: newVal })
+      const res = await fetch(`http://localhost:4000/api/admin/projects/manual/${id}`, { 
+        method: 'DELETE', 
+        credentials: 'include' 
       });
-      if (!res.ok) {
-        const b = await res.json().catch(() => ({}));
-        alert(b.error || 'Not authorized');
-        return;
+      if (res.ok) {
+        await loadAll();
+        closeEdit();
+      } else {
+        alert('Erreur lors de la suppression');
       }
-      // update local map and reload fresh data to keep everything in sync
-      setVisMap((m) => ({ ...m, [key]: newVal }));
-      await loadAll();
     } catch (e) {
-      console.error('toggleVisibility error', e);
-      alert('Network error');
+      console.error(e);
+      alert('Erreur réseau');
     }
   }
 
-  function openAdminModal(project: any) {
-    setModalProject(project);
-    setModalVisible(true);
-    (async () => {
-      try {
-        const key = project._source === 'github' ? `github:${project.full_name}` : `manual:${project.id}`;
-        const res = await fetch(`http://localhost:4000/api/projects/visibility?project=${encodeURIComponent(key)}`);
-        if (!res.ok) {
-          setModalVisibility(null);
-          return;
-        }
-        const b = await res.json();
-        setModalVisibility(b.hasOwnProperty('visible') ? b.visible : null);
-      } catch (e) {
-        setModalVisibility(null);
-      }
-    })();
+  const filtered = projects.filter(p => {
+    if (filter === 'all') return true;
+    return p._source === filter;
+  });
+
+  const sortedProjects = [...filtered].sort((a, b) => {
+    const aVis = visMap.hasOwnProperty(getKey(a)) ? visMap[getKey(a)] : true;
+    const bVis = visMap.hasOwnProperty(getKey(b)) ? visMap[getKey(b)] : true;
+    if (aVis !== bVis) return bVis ? 1 : -1;
+    return (a.name || a.title || '').localeCompare(b.name || b.title || '');
+  });
+
+  function getKey(p: any) {
+    return p._source === 'github' ? `github:${p.full_name}` : `manual:${p.id}`;
   }
 
-  function closeAdminModal() {
-    setModalVisible(false);
-    setModalProject(null);
-    setModalVisibility(null);
+  function isVisible(p: any) {
+    const key = getKey(p);
+    return visMap.hasOwnProperty(key) ? visMap[key] : true;
   }
-
-  const combined = [
-    ...manualProjects.map(p => ({ ...p, _displayTitle: p.name || p.title || `manual-${p.id}` })),
-    ...githubProjects.map(p => ({ ...p, _displayTitle: p.name || p.title || p.full_name }))
-  ];
 
   return (
-    <div className="container">
-      <h2>Projets</h2>
-      <p>Affiche les projets GitHub publics et les projets manuels.</p>
-
-      <div style={{ marginBottom: 12 }}>
-        <Link to="/admin/projects/new"><button className="btn">Créer un projet</button></Link>
+    <div className="container admin-projects">
+      <div className="admin-header">
+        <div>
+          <div className="hero-badge">
+            <span className="badge-dot"></span>
+            GESTION PROJETS
+          </div>
+          <h1 className="hero-title">Projets</h1>
+          <p className="hero-subtitle">Gérez vos projets GitHub et manuels, modifiez leur visibilité et métadonnées.</p>
+        </div>
+        <div className="hero-actions">
+          <Link to="/admin/projects/new"><button className="btn btn-primary">Créer un projet</button></Link>
+          <Link to="/admin"><button className="btn btn-secondary">Retour dashboard</button></Link>
+        </div>
       </div>
 
-      {loading && <p>Chargement…</p>}
+      <div className="projects-filters">
+        <button 
+          className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+          onClick={() => setFilter('all')}
+        >
+          Tous ({projects.length})
+        </button>
+        <button 
+          className={`filter-btn ${filter === 'manual' ? 'active' : ''}`}
+          onClick={() => setFilter('manual')}
+        >
+          Manuels ({projects.filter(p => p._source === 'manual').length})
+        </button>
+        <button 
+          className={`filter-btn ${filter === 'github' ? 'active' : ''}`}
+          onClick={() => setFilter('github')}
+        >
+          GitHub ({projects.filter(p => p._source === 'github').length})
+        </button>
+      </div>
 
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th style={{ textAlign: 'left' }}>Titre</th>
-            <th>Source</th>
-            <th>Visible</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {combined.map(p => {
-            const key = p._source === 'github' ? `github:${p.full_name}` : `manual:${p.id}`;
-            // server-side defaults to visible when no explicit visibility is set,
-            // so mirror that default here to avoid showing `Non` for projects
-            // that are actually visible but not present in the visibility map.
-            const visible = visMap.hasOwnProperty(key) ? !!visMap[key] : true;
-            return (
-              <tr key={key} style={{ borderTop: '1px solid #eee' }}>
-                <td style={{ padding: '8px 6px' }}>
-                  <a href="#" onClick={e => { e.preventDefault(); openAdminModal(p); }}>{p._displayTitle}</a>
-                </td>
-                <td style={{ textAlign: 'center' }}>{p._source}</td>
-                <td style={{ textAlign: 'center' }}>{visible ? 'Oui' : 'Non'}</td>
-                <td style={{ textAlign: 'center' }}>
-                  {p._source === 'manual' && <button onClick={() => remove(p.id)}>Supprimer</button>}
-                  <button style={{ marginLeft: 8 }} onClick={() => toggleVisibility(key)}>Basculer visibilité</button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      {loading && <div className="loading-state">Chargement des projets…</div>}
 
-      <ProjectModal
-        project={modalProject}
-        visible={!!modalVisible}
-        onClose={closeAdminModal}
-        onToggleVisibility={async () => {
-          if (!modalProject) return;
-          const key = modalProject._source === 'github' ? `github:${modalProject.full_name}` : `manual:${modalProject.id}`;
-          await toggleVisibility(key);
-          // refresh visMap and modal visibility; default to true when key is absent
-          const vis = await fetch('http://localhost:4000/api/projects/visibility');
-          if (vis.ok) {
-            const bv = await vis.json();
-            const map = bv.visibility || {};
-            setVisMap(map);
-            setModalVisibility(map.hasOwnProperty(key) ? !!map[key] : true);
-          }
-        }}
-        visibility={modalVisibility}
-        busy={modalBusy}
-      />
+      {!loading && sortedProjects.length === 0 && (
+        <div className="empty-state">
+          <p>Aucun projet trouvé.</p>
+          <Link to="/admin/projects/new"><button className="btn btn-primary">Créer votre premier projet</button></Link>
+        </div>
+      )}
+
+      <div className="projects-grid">
+        {sortedProjects.map(p => {
+          const visible = isVisible(p);
+          return (
+            <div 
+              key={getKey(p)} 
+              className={`project-card ${!visible ? 'hidden-project' : ''}`}
+              onClick={() => openEdit(p)}
+            >
+              <div className="project-card-header">
+                <div className="project-title">{p.name || p.title || p.full_name}</div>
+                <div className="project-badges">
+                  <span className={`badge badge-source ${p._source}`}>{p._source === 'github' ? 'GitHub' : 'Manuel'}</span>
+                  <span className={`badge badge-visibility ${visible ? 'visible' : 'hidden'}`}>
+                    {visible ? 'Visible' : 'Caché'}
+                  </span>
+                </div>
+              </div>
+              <div className="project-card-body">
+                <p className="project-description">{p.description || 'Pas de description'}</p>
+              </div>
+              <div className="project-card-footer">
+                <div className="project-meta">
+                  {p.language && <span className="meta-item">{p.language}</span>}
+                  {p.stargazers_count !== undefined && <span className="meta-item">★ {p.stargazers_count}</span>}
+                </div>
+                <div className="project-action">
+                  <span className="action-hint">Cliquer pour modifier →</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {modalOpen && editingProject && (
+        <EditProjectModal
+          project={editingProject}
+          visMap={visMap}
+          onClose={closeEdit}
+          onSave={handleSave}
+          onDelete={editingProject._source === 'manual' ? handleDelete : undefined}
+        />
+      )}
     </div>
   );
 }
