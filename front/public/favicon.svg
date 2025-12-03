@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f2ede0"/>
+      <stop offset="100%" stop-color="#e8e3d6"/>
+    </linearGradient>
+    <pattern id="grid" width="8" height="8" patternUnits="userSpaceOnUse">
+      <rect width="8" height="8" fill="transparent" />
+      <path d="M0 7 H8 M7 0 V8" stroke="rgba(0,0,0,0.04)" stroke-width="1"/>
+    </pattern>
+    <clipPath id="round">
+      <rect x="1" y="1" width="62" height="62" rx="10" ry="10"/>
+    </clipPath>
+  </defs>
+
+  <rect width="64" height="64" fill="url(#g)"/>
+
+  <!-- textured grid -->
+  <rect width="64" height="64" fill="url(#grid)" opacity="0.9" clip-path="url(#round)"/>
+
+  <!-- print stream diagonal stripe -->
+  <g opacity="0.65" clip-path="url(#round)">
+    <rect x="-10" y="20" width="84" height="12" fill="#dcd5c8" transform="rotate(-18 32 32)" />
+    <rect x="-14" y="28" width="84" height="4" fill="#f7f4ef" transform="rotate(-18 32 32)" opacity="0.6"/>
+  </g>
+
+  <!-- decorative small marks -->
+  <g fill="none" stroke="#1a1a1a" stroke-width="1.2" clip-path="url(#round)" opacity="0.85">
+    <path d="M10 10 h6" opacity="0.7"/>
+    <path d="M14 14 v6" opacity="0.7"/>
+    <circle cx="50" cy="12" r="1" fill="#1a1a1a"/>
+    <rect x="46" y="46" width="3" height="3" rx="0.5" fill="#1a1a1a"/>
+  </g>
+
+  <!-- outer frame -->
+  <rect x="4" y="4" width="56" height="56" rx="8" ry="8" fill="none" stroke="#1a1a1a" stroke-width="1.2" opacity="0.9"/>
+
+  <!-- central monogram plate -->
+  <g transform="translate(12,14)" clip-path="url(#round)">
+    <rect x="6" y="6" width="40" height="28" rx="4" ry="4" fill="#f9f7f2" stroke="#1a1a1a" stroke-width="1"/>
+
+    <!-- small inset grid on plate -->
+    <g opacity="0.06">
+      <rect x="8" y="8" width="36" height="24" fill="url(#grid)"/>
+    </g>
+
+    <!-- letters A C in a condensed geometric style -->
+    <text x="28" y="30" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-weight="700" font-size="18" fill="#1a1a1a">AC</text>
+  </g>
+
+  <!-- tiny accents to mimic skin lines -->
+  <g stroke="#1a1a1a" stroke-width="0.8" clip-path="url(#round)" opacity="0.7">
+    <path d="M8 30 h6"/>
+    <path d="M50 22 h4"/>
+    <path d="M22 50 h8"/>
+  </g>
+
+</svg>
