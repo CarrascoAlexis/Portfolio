@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Portfolio.css';
-
-const projects = [
+const fallbackProjects = [
   {
     id: 1,
     title: 'E-Commerce Platform',
@@ -56,9 +55,44 @@ const categories = ['all', 'web', 'mobile', 'dashboard'];
 
 export default function Portfolio() {
   const [filter, setFilter] = useState('all');
+  const [projects, setProjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredProjects = filter === 'all' 
-    ? projects 
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch('http://localhost:4000/api/projects');
+        if (!res.ok) throw new Error(`API error ${res.status}`);
+        const body = await res.json();
+        if (cancelled) return;
+        const apiProjects = (body.projects || []).map((p: any, i: number) => ({
+          id: p.id || `${i}-${p.full_name}`,
+          title: p.name || p.full_name,
+          description: p.description || '',
+          technologies: p.language ? [p.language] : [],
+          category: 'web',
+          image: p.html_url ? '🔗' : '📦',
+          url: p.html_url || p.url || p.clone_url
+        }));
+        setProjects(apiProjects.length ? apiProjects : fallbackProjects);
+      } catch (err: any) {
+        console.warn('Failed to load projects from API, using fallback', err);
+        setError(err?.message || 'Failed to load projects');
+        setProjects(fallbackProjects);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  const filteredProjects = filter === 'all'
+    ? projects
     : projects.filter(p => p.category === filter);
 
   return (
@@ -84,6 +118,9 @@ export default function Portfolio() {
             ))}
           </div>
 
+          {loading && <p>Loading projects…</p>}
+          {error && <p className="error">Error: {error}</p>}
+
           <div className="projects-grid">
             {filteredProjects.map(project => (
               <div key={project.id} className="project-card">
@@ -99,7 +136,11 @@ export default function Portfolio() {
                     ))}
                   </div>
                   <div className="project-links">
-                    <button className="project-link">Voir le projet →</button>
+                    {project.url ? (
+                      <a className="project-link" href={project.url} target="_blank" rel="noreferrer">Voir le projet →</a>
+                    ) : (
+                      <button className="project-link">Voir le projet →</button>
+                    )}
                   </div>
                 </div>
               </div>
