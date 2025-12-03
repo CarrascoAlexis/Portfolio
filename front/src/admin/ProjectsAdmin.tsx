@@ -3,24 +3,50 @@ import { useEffect, useState } from 'react';
 type Project = any;
 
 export default function AdminProjects() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [githubProjects, setGithubProjects] = useState<Project[]>([]);
+  const [manualProjects, setManualProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
+  const [visMap, setVisMap] = useState<Record<string, boolean>>({});
 
-  async function load() {
+  async function loadAll() {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:4000/api/admin/projects/manual', { credentials: 'include' });
-      if (!res.ok) throw new Error('Failed');
-      const b = await res.json();
-      setProjects(b.projects || []);
+      // GitHub projects (public)
+      const gh = await fetch('http://localhost:4000/api/projects');
+      if (gh.ok) {
+        const b = await gh.json();
+        const list = (b.projects || []).map((p: any) => ({ ...p, _source: 'github' }));
+        setGithubProjects(list);
+      } else {
+        setGithubProjects([]);
+      }
+
+      // manual projects (admin)
+      const manual = await fetch('http://localhost:4000/api/admin/projects/manual', { credentials: 'include' });
+      if (manual.ok) {
+        const bm = await manual.json();
+        const mlist = (bm.projects || []).map((p: any) => ({ ...p, _source: 'manual' }));
+        setManualProjects(mlist);
+      } else {
+        setManualProjects([]);
+      }
+
+      // load visibilities (all)
+      const vis = await fetch('http://localhost:4000/api/projects/visibility');
+      if (vis.ok) {
+        const bv = await vis.json();
+        setVisMap(bv.visibility || {});
+      }
     } catch (e) {
-      console.error(e);
-    } finally { setLoading(false); }
+      console.error('loadAll error', e);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { loadAll(); }, []);
 
   async function create() {
     try {
@@ -29,7 +55,7 @@ export default function AdminProjects() {
         body: JSON.stringify({ name: title, description: desc })
       });
       if (!res.ok) throw new Error('Create failed');
-      await load();
+      await loadAll();
       setTitle(''); setDesc('');
     } catch (e) { console.error(e); }
   }
@@ -38,27 +64,74 @@ export default function AdminProjects() {
     if (!confirm('Supprimer ce projet ?')) return;
     try {
       await fetch(`http://localhost:4000/api/admin/projects/manual/${id}`, { method: 'DELETE', credentials: 'include' });
-      await load();
+      await loadAll();
     } catch (e) { console.error(e); }
   }
 
+  async function toggleVisibility(key: string) {
+    try {
+      const newVal = !visMap[key];
+      const res = await fetch('http://localhost:4000/api/admin/visibility', {
+        method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project: key, visible: newVal })
+      });
+      if (!res.ok) {
+        const b = await res.json().catch(() => ({}));
+        alert(b.error || 'Not authorized');
+        return;
+      }
+      setVisMap((m) => ({ ...m, [key]: newVal }));
+    } catch (e) {
+      console.error('toggleVisibility error', e);
+      alert('Network error');
+    }
+  }
+
+  const combined = [
+    ...manualProjects.map(p => ({ ...p, _displayTitle: p.name || p.title || `manual-${p.id}` })),
+    ...githubProjects.map(p => ({ ...p, _displayTitle: p.name || p.title || p.full_name }))
+  ];
+
   return (
     <div className="container">
-      <h2>Projets (manuels)</h2>
+      <h2>Projets</h2>
+      <p>Affiche les projets GitHub publics et les projets manuels.</p>
+
       <div style={{ marginBottom: 12 }}>
-        <input placeholder="Titre" value={title} onChange={e => setTitle(e.target.value)} />
+        <input placeholder="Titre (manual)" value={title} onChange={e => setTitle(e.target.value)} />
         <input placeholder="Description" value={desc} onChange={e => setDesc(e.target.value)} />
-        <button onClick={create} className="btn">Ajouter</button>
+        <button onClick={create} className="btn">Ajouter manuel</button>
       </div>
+
       {loading && <p>Chargement…</p>}
-      <ul>
-        {projects.map(p => (
-          <li key={p.id} style={{ marginBottom: 8 }}>
-            <strong>{p.name || p.title}</strong> — {p.description}
-            <button style={{ marginLeft: 8 }} onClick={() => remove(p.id)}>Supprimer</button>
-          </li>
-        ))}
-      </ul>
+
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr>
+            <th style={{ textAlign: 'left' }}>Titre</th>
+            <th>Source</th>
+            <th>Visible</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {combined.map(p => {
+            const key = p._source === 'github' ? `github:${p.full_name}` : `manual:${p.id}`;
+            const visible = visMap.hasOwnProperty(key) ? !!visMap[key] : false;
+            return (
+              <tr key={key} style={{ borderTop: '1px solid #eee' }}>
+                <td style={{ padding: '8px 6px' }}>{p._displayTitle}</td>
+                <td style={{ textAlign: 'center' }}>{p._source}</td>
+                <td style={{ textAlign: 'center' }}>{visible ? 'Oui' : 'Non'}</td>
+                <td style={{ textAlign: 'center' }}>
+                  {p._source === 'manual' && <button onClick={() => remove(p.id)}>Supprimer</button>}
+                  <button style={{ marginLeft: 8 }} onClick={() => toggleVisibility(key)}>Basculer visibilité</button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
