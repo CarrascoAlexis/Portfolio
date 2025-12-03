@@ -25,6 +25,8 @@ services:
   frontend:
     build:
       context: ./front
+      args:
+        - VITE_API_URL=http://86.252.87.194:4000
     container_name: portfolio-frontend
     restart: unless-stopped
     ports:
