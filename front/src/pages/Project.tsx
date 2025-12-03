@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import './Portfolio.css';
+import ImageCarousel from '../components/ImageCarousel';
 
 export default function Project() {
   const { name } = useParams();
@@ -10,6 +11,12 @@ export default function Project() {
   const [readme, setReadme] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (decoded) {
+      document.title = `${decoded} - Alexis Carrasco`;
+    }
+  }, [decoded]);
 
   useEffect(() => {
     if (!decoded) return;
@@ -112,35 +119,19 @@ export default function Project() {
 
       <div style={{ margin: '12px 0' }}>
         <strong>Galerie:</strong>
-        {images.length === 0 ? (
-          <p className="muted">Aucune image pour ce projet.</p>
-        ) : (
-          <div className="project-gallery" style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-            {images.map((img: any) => (
-              <div key={img.filename} className="gallery-item" style={{ border: '2px solid var(--line-color)', overflow: 'hidden', transition: 'all var(--transition-normal)', cursor: 'pointer' }}>
-                <div style={{ aspectRatio: '16/9', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
-                  <img 
-                    src={img.url.startsWith('/') ? `http://localhost:4000${img.url}` : img.url} 
-                    alt={img.originalname} 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform var(--transition-normal)' }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <ImageCarousel images={images} />
       </div>
 
-      <div style={{ margin: '12px 0' }}>
-        <strong>README:</strong>
-        {readme ? (
-          <pre style={{ whiteSpace: 'pre-wrap', background: 'rgba(0,0,0,0.04)', padding: 12, borderRadius: 6 }}>{readme}</pre>
-        ) : (
-          <p className="muted">Aucun README disponible.</p>
-        )}
-      </div>
+      {project.showReadme !== false && (
+        <div style={{ margin: '12px 0' }}>
+          <strong>README:</strong>
+          {readme ? (
+            <pre style={{ whiteSpace: 'pre-wrap', background: 'rgba(0,0,0,0.04)', padding: 12, borderRadius: 6 }}>{readme}</pre>
+          ) : (
+            <p className="muted">Aucun README disponible.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
