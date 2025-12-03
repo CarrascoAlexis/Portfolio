@@ -31,7 +31,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
     // Load all images and filter those linked to this project
     (async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/admin/images', { credentials: 'include' });
+        const res = await fetch('/admin/images', { credentials: 'include' });
         if (res.ok) {
           const b = await res.json();
           const images = b.images || [];
@@ -50,7 +50,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
     // Load all existing tags from all projects
     (async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/projects');
+        const res = await fetch('/projects');
         if (res.ok) {
           const b = await res.json();
           const projects = b.projects || [];
@@ -92,7 +92,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
 
   async function unlinkImage(filename: string) {
     try {
-      const res = await fetch(`http://localhost:4000/api/admin/images/${encodeURIComponent(filename)}`, {
+      const res = await fetch(`/admin/images/${encodeURIComponent(filename)}`, {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -101,7 +101,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
       
       if (res.ok) {
         // Refresh images
-        const imgRes = await fetch('http://localhost:4000/api/admin/images', { credentials: 'include' });
+        const imgRes = await fetch('/admin/images', { credentials: 'include' });
         if (imgRes.ok) {
           const b = await imgRes.json();
           const images = b.images || [];
@@ -116,7 +116,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
 
   async function setPrimaryImage(filename: string) {
     try {
-      const res = await fetch(`http://localhost:4000/api/admin/images/${encodeURIComponent(filename)}`, {
+      const res = await fetch(`/admin/images/${encodeURIComponent(filename)}`, {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -125,7 +125,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
       
       if (res.ok) {
         // Refresh images
-        const imgRes = await fetch('http://localhost:4000/api/admin/images', { credentials: 'include' });
+        const imgRes = await fetch('/admin/images', { credentials: 'include' });
         if (imgRes.ok) {
           const b = await imgRes.json();
           const images = b.images || [];
@@ -142,7 +142,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
     setBusy(true);
     try {
       // Save visibility
-      const visRes = await fetch('http://localhost:4000/api/admin/visibility', {
+      const visRes = await fetch('/admin/visibility', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -156,7 +156,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
       }
 
       // Save tags (for both GitHub and manual projects)
-      const tagsRes = await fetch('http://localhost:4000/api/admin/tags', {
+      const tagsRes = await fetch('/admin/tags', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -171,7 +171,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
 
       // For manual projects, update name and description
       if (!isGithub) {
-        const updateRes = await fetch(`http://localhost:4000/api/admin/projects/manual/${project.id}`, {
+        const updateRes = await fetch(`/admin/projects/manual/${project.id}`, {
           method: 'PUT',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
@@ -185,7 +185,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
         }
       } else {
         // For GitHub projects, save description and technologies as metadata
-        const metadataRes = await fetch('http://localhost:4000/api/admin/projects/github/metadata', {
+        const metadataRes = await fetch('/admin/projects/github/metadata', {
           method: 'POST',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
@@ -331,7 +331,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
                   {projectImages.map(img => (
                     <div key={img.filename} className="project-image-item">
                       <img 
-                        src={img.url.startsWith('/') ? `http://localhost:4000${img.url}` : img.url} 
+                        src={img.url.startsWith('/') ? `${img.url}` : img.url} 
                         alt={img.originalname}
                       />
                       <div className="image-item-info">
@@ -376,7 +376,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
                 {projectImages.map(img => (
                   <div key={img.filename} className="project-image-item">
                     <img 
-                      src={img.url.startsWith('/') ? `http://localhost:4000${img.url}` : img.url} 
+                      src={img.url.startsWith('/') ? `${img.url}` : img.url} 
                       alt={img.originalname}
                     />
                     <div className="image-item-info">

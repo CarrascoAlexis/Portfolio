@@ -19,7 +19,7 @@ export default function EditImageModal({ image, projects, onClose, onSave, onDel
     setBusy(true);
     try {
       // Update image metadata (project link and primary status)
-      const res = await fetch(`http://localhost:4000/api/admin/images/${encodeURIComponent(image.filename)}`, {
+      const res = await fetch(`/admin/images/${encodeURIComponent(image.filename)}`, {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -62,7 +62,7 @@ export default function EditImageModal({ image, projects, onClose, onSave, onDel
         <div className="modal-body">
           <div className="image-preview-large">
             <img 
-              src={image.url.startsWith('/') ? `http://localhost:4000${image.url}` : image.url} 
+              src={image.url.startsWith('/') ? `${image.url}` : image.url} 
               alt={image.originalname}
             />
           </div>

@@ -22,14 +22,14 @@ export default function AdminDashboard() {
       setLoading(true);
       try {
         // Charger projets
-        const res = await fetch('http://localhost:4000/api/projects');
+        const res = await fetch('/projects');
         if (res.ok) {
           const b = await res.json();
           setProjects(b.projects || []);
         }
 
         // Charger visibilité
-        const vis = await fetch('http://localhost:4000/api/projects/visibility');
+        const vis = await fetch('/projects/visibility');
         if (vis.ok) {
           const bv = await vis.json();
           setVisMap(bv.visibility || {});

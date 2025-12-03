@@ -28,7 +28,7 @@ export default function Project() {
       setError(null);
       try {
         // fetch all projects and find by name (owner resolution removed from URL)
-        const res = await fetch(`http://localhost:4000/api/projects`);
+        const res = await fetch(`/projects`);
         if (!res.ok) throw new Error(`API error ${res.status}`);
         const body = await res.json();
         const found = (body.projects || []).find((p: any) => {
@@ -46,7 +46,7 @@ export default function Project() {
         // load images from backend API (if we have full_name, prefer it)
         try {
           const projId = found.full_name || (found.owner && `${found.owner.login}/${found.name}`) || `${found.name}`;
-          const imgRes = await fetch(`http://localhost:4000/api/images?project=${encodeURIComponent(projId)}`);
+          const imgRes = await fetch(`/images?project=${encodeURIComponent(projId)}`);
           if (imgRes.ok) {
             const imgBody = await imgRes.json();
             setImages(imgBody.images || []);

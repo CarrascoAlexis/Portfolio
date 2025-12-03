@@ -10,7 +10,7 @@ export default function RequireAuth({ children }: PropsWithChildren) {
     let cancelled = false;
     async function me() {
       try {
-        const res = await fetch('http://localhost:4000/api/admin/me', { credentials: 'include' });
+        const res = await fetch('/admin/me', { credentials: 'include' });
         if (!res.ok) {
           if (!cancelled) setOk(false);
           return;

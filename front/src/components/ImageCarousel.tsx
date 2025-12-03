@@ -26,7 +26,7 @@ export default function ImageCarousel({ images }: ImageCarouselProps) {
 
   const currentImage = images[currentIndex];
   const imageUrl = currentImage.url.startsWith('/')
-    ? `http://localhost:4000${currentImage.url}`
+    ? `${currentImage.url}`
     : currentImage.url;
 
   return (
@@ -64,7 +64,7 @@ export default function ImageCarousel({ images }: ImageCarouselProps) {
         <div className="carousel-thumbnails">
           {images.map((img, index) => {
             const thumbUrl = img.url.startsWith('/')
-              ? `http://localhost:4000${img.url}`
+              ? `${img.url}`
               : img.url;
             return (
               <button

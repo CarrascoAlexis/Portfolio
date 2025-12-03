@@ -22,15 +22,15 @@ export default function AdminProjects() {
     setLoading(true);
     try {
       // GitHub projects (public)
-      const gh = await fetch('http://localhost:4000/api/projects');
+      const gh = await fetch('/projects');
       const ghList = gh.ok ? ((await gh.json()).projects || []).map((p: any) => ({ ...p, _source: 'github' })) : [];
 
       // manual projects (admin)
-      const manual = await fetch('http://localhost:4000/api/admin/projects/manual', { credentials: 'include' });
+      const manual = await fetch('/admin/projects/manual', { credentials: 'include' });
       const manualList = manual.ok ? ((await manual.json()).projects || []).map((p: any) => ({ ...p, _source: 'manual' })) : [];
 
       // load visibilities
-      const vis = await fetch('http://localhost:4000/api/projects/visibility');
+      const vis = await fetch('/projects/visibility');
       if (vis.ok) {
         const bv = await vis.json();
         setVisMap(bv.visibility || {});
@@ -64,7 +64,7 @@ export default function AdminProjects() {
   async function handleDelete(id: string) {
     if (!confirm('Supprimer ce projet manuel ?')) return;
     try {
-      const res = await fetch(`http://localhost:4000/api/admin/projects/manual/${id}`, { 
+      const res = await fetch(`/admin/projects/manual/${id}`, { 
         method: 'DELETE', 
         credentials: 'include' 
       });

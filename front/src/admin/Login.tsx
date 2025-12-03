@@ -17,7 +17,7 @@ export default function AdminLogin() {
     e.preventDefault();
     setError(null);
     try {
-      const res = await fetch('http://localhost:4000/api/admin/login', {
+      const res = await fetch('/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

@@ -21,7 +21,7 @@ export default function CreateProject() {
     (async () => {
       setLoading(true);
       try {
-        const res = await fetch('http://localhost:4000/api/images');
+        const res = await fetch('/images');
         if (!res.ok) return;
         const b = await res.json();
         setGallery(b.images || []);
@@ -47,7 +47,7 @@ export default function CreateProject() {
 
     setBusy(true);
     try {
-      const res = await fetch('http://localhost:4000/api/admin/projects/manual', {
+      const res = await fetch('/admin/projects/manual', {
         method: 'POST', 
         credentials: 'include', 
         headers: { 'Content-Type': 'application/json' },

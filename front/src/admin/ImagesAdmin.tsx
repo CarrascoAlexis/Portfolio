@@ -25,8 +25,8 @@ export default function AdminImages() {
     setLoading(true);
     try {
       const [imgRes, projRes] = await Promise.all([
-        fetch('http://localhost:4000/api/admin/images', { credentials: 'include' }),
-        fetch('http://localhost:4000/api/projects')
+        fetch('/admin/images', { credentials: 'include' }),
+        fetch('/projects')
       ]);
 
       if (imgRes.ok) {
@@ -56,7 +56,7 @@ export default function AdminImages() {
     if (selectedProject) fd.append('project', selectedProject);
     
     try {
-      const res = await fetch('http://localhost:4000/api/images', { 
+      const res = await fetch('/images', { 
         method: 'POST', 
         credentials: 'include', 
         body: fd 
@@ -92,7 +92,7 @@ export default function AdminImages() {
   async function handleDelete(filename: string) {
     if (!confirm('Supprimer cette image ?')) return;
     try {
-      const res = await fetch(`http://localhost:4000/api/admin/images/${encodeURIComponent(filename)}`, { 
+      const res = await fetch(`/admin/images/${encodeURIComponent(filename)}`, { 
         method: 'DELETE', 
         credentials: 'include' 
       });
@@ -114,7 +114,7 @@ export default function AdminImages() {
     
     try {
       const promises = Array.from(selectedImages).map(filename =>
-        fetch(`http://localhost:4000/api/admin/images/${encodeURIComponent(filename)}`, {
+        fetch(`/admin/images/${encodeURIComponent(filename)}`, {
           method: 'DELETE',
           credentials: 'include'
         })
@@ -267,7 +267,7 @@ export default function AdminImages() {
             )}
             <div className="image-preview">
               <img 
-                src={img.url.startsWith('/') ? `http://localhost:4000${img.url}` : img.url} 
+                src={img.url.startsWith('/') ? `${img.url}` : img.url} 
                 alt={img.originalname} 
               />
             </div>
