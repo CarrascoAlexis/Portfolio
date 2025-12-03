@@ -17,6 +17,9 @@
     "ioredis": "^5.3.2",
     "socket.io": "^4.7.2",
     "multer": "^1.4.5-lts.1",
+    "bcrypt": "^5.1.0",
+    "cookie-parser": "^1.4.6",
+    "jsonwebtoken": "^9.0.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

@@ -28,6 +28,8 @@ memory.images = {};
 
 // add projects cache to memory storage
 memory.projects = {};
+// manual projects (admin-created)
+memory.manualProjects = [];
 
 async function saveMessage(room, message) {
   if (redisClient) {
@@ -104,6 +106,59 @@ module.exports = {
     return memory.projects[user] || [];
   }
   ,
+  // manual projects (admin managed)
+  createManualProject: async (project) => {
+    const id = project.id || uuidv4();
+    const entry = { id, ...project };
+    if (redisClient) {
+      const key = `projects:manual`;
+      const data = await redisClient.get(key) || '[]';
+      const arr = JSON.parse(data);
+      arr.unshift(entry);
+      await redisClient.set(key, JSON.stringify(arr));
+      return entry;
+    }
+    memory.manualProjects.unshift(entry);
+    return entry;
+  },
+  getManualProjects: async () => {
+    if (redisClient) {
+      const key = `projects:manual`;
+      const data = await redisClient.get(key);
+      return data ? JSON.parse(data) : [];
+    }
+    return memory.manualProjects;
+  },
+  updateManualProject: async (id, patch) => {
+    if (redisClient) {
+      const key = `projects:manual`;
+      const data = await redisClient.get(key) || '[]';
+      const arr = JSON.parse(data);
+      const idx = arr.findIndex(p => p.id === id);
+      if (idx === -1) return null;
+      arr[idx] = { ...arr[idx], ...patch };
+      await redisClient.set(key, JSON.stringify(arr));
+      return arr[idx];
+    }
+    const idx = memory.manualProjects.findIndex(p => p.id === id);
+    if (idx === -1) return null;
+    memory.manualProjects[idx] = { ...memory.manualProjects[idx], ...patch };
+    return memory.manualProjects[idx];
+  },
+  deleteManualProject: async (id) => {
+    if (redisClient) {
+      const key = `projects:manual`;
+      const data = await redisClient.get(key) || '[]';
+      let arr = JSON.parse(data);
+      const before = arr.length;
+      arr = arr.filter(p => p.id !== id);
+      await redisClient.set(key, JSON.stringify(arr));
+      return arr.length < before;
+    }
+    const before = memory.manualProjects.length;
+    memory.manualProjects = memory.manualProjects.filter(p => p.id !== id);
+    return memory.manualProjects.length < before;
+  },
   // images
   saveImage: async (project, imageMeta) => {
     if (redisClient) {
@@ -127,5 +182,22 @@ module.exports = {
       return vals.map(v => JSON.parse(v)).reverse();
     }
     return (memory.images[key] || []).slice().reverse();
+  },
+  removeImageByFilename: async (filename) => {
+    if (!filename) return false;
+    if (redisClient) {
+      // remove from all keys that match images:*
+      const keys = await redisClient.keys('images:*');
+      for (const k of keys) {
+        const vals = await redisClient.lrange(k, 0, 499);
+        const filtered = vals.map(v => JSON.parse(v)).filter(i => i.filename !== filename);
+        await redisClient.set(k, JSON.stringify(filtered));
+      }
+      return true;
+    }
+    Object.keys(memory.images).forEach(k => {
+      memory.images[k] = (memory.images[k] || []).filter(i => i.filename !== filename);
+    });
+    return true;
   }
 };

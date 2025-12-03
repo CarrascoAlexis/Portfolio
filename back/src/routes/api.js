@@ -13,4 +13,6 @@ router.get('/projects', projectController.list);
 router.post('/images', imageController.uploadMiddleware, imageController.uploadImage);
 router.get('/images', imageController.listImages);
 
+// Note: admin routes are mounted in routes/admin.js (under /api/admin)
+
 module.exports = router;

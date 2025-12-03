@@ -12,6 +12,11 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Portfolio from './pages/Portfolio';
 import Project from './pages/Project';
+import AdminLogin from './admin/Login';
+import AdminDashboard from './admin/Dashboard';
+import AdminProjects from './admin/ProjectsAdmin';
+import AdminImages from './admin/ImagesAdmin';
+import RequireAuth from './admin/RequireAuth';
 import './App.css';
 
 function App() {
@@ -34,7 +39,6 @@ function App() {
   });
 
   // Drag state
-  const draggingRef = useRef(false);
   const dragOffset = useRef({ x: 0, y: 0 });
   const [dragPos, setDragPos] = useState<{ x: number; y: number } | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -206,6 +210,12 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/projects" element={<Portfolio />} />
             <Route path="/projects/:name" element={<Project />} />
+
+            {/* Admin routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<RequireAuth><AdminDashboard /></RequireAuth>} />
+            <Route path="/admin/projects" element={<RequireAuth><AdminProjects /></RequireAuth>} />
+            <Route path="/admin/images" element={<RequireAuth><AdminImages /></RequireAuth>} />
           </Routes>
         </main>
         <Footer onGameToggle={handleGameToggle} />
