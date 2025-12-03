@@ -86,7 +86,9 @@ export default function AdminProjects() {
         alert(b.error || 'Not authorized');
         return;
       }
+      // update local map and reload fresh data to keep everything in sync
       setVisMap((m) => ({ ...m, [key]: newVal }));
+      await loadAll();
     } catch (e) {
       console.error('toggleVisibility error', e);
       alert('Network error');
@@ -148,7 +150,10 @@ export default function AdminProjects() {
         <tbody>
           {combined.map(p => {
             const key = p._source === 'github' ? `github:${p.full_name}` : `manual:${p.id}`;
-            const visible = visMap.hasOwnProperty(key) ? !!visMap[key] : false;
+            // server-side defaults to visible when no explicit visibility is set,
+            // so mirror that default here to avoid showing `Non` for projects
+            // that are actually visible but not present in the visibility map.
+            const visible = visMap.hasOwnProperty(key) ? !!visMap[key] : true;
             return (
               <tr key={key} style={{ borderTop: '1px solid #eee' }}>
                 <td style={{ padding: '8px 6px' }}>
@@ -174,12 +179,13 @@ export default function AdminProjects() {
           if (!modalProject) return;
           const key = modalProject._source === 'github' ? `github:${modalProject.full_name}` : `manual:${modalProject.id}`;
           await toggleVisibility(key);
-          // refresh visMap and modal visibility
+          // refresh visMap and modal visibility; default to true when key is absent
           const vis = await fetch('http://localhost:4000/api/projects/visibility');
           if (vis.ok) {
             const bv = await vis.json();
-            setVisMap(bv.visibility || {});
-            setModalVisibility(bv.visibility ? bv.visibility[key] : null);
+            const map = bv.visibility || {};
+            setVisMap(map);
+            setModalVisibility(map.hasOwnProperty(key) ? !!map[key] : true);
           }
         }}
         visibility={modalVisibility}
