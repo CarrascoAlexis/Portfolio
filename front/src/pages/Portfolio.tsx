@@ -26,12 +26,12 @@ export default function Portfolio() {
           fetch(`${API_BASE}/images`)
         ]);
 
-        if (!projRes.ok) throw new Error(`API error ${projRes.status}`);
-        const body = await projRes.json();
+        if (!projectsRes.ok) throw new Error(`API error ${projectsRes.status}`);
+        const body = await projectsRes.json();
 
         let allImages: any[] = [];
-        if (imgRes.ok) {
-          const imgBody = await imgRes.json();
+        if (imagesRes.ok) {
+          const imgBody = await imagesRes.json();
           allImages = imgBody.images || [];
         }
 
