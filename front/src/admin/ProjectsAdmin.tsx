@@ -64,7 +64,7 @@ export default function AdminProjects() {
   async function handleDelete(id: string) {
     if (!confirm('Supprimer ce projet manuel ?')) return;
     try {
-      const res = await fetch(`/admin/projects/manual/${id}`, { 
+      const res = await fetch(`/api/admin/projects/manual/${id}`, { 
         method: 'DELETE', 
         credentials: 'include' 
       });

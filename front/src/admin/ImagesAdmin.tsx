@@ -92,7 +92,7 @@ export default function AdminImages() {
   async function handleDelete(filename: string) {
     if (!confirm('Supprimer cette image ?')) return;
     try {
-      const res = await fetch(`/admin/images/${encodeURIComponent(filename)}`, { 
+      const res = await fetch(`/api/admin/images/${encodeURIComponent(filename)}`, { 
         method: 'DELETE', 
         credentials: 'include' 
       });
@@ -114,7 +114,7 @@ export default function AdminImages() {
     
     try {
       const promises = Array.from(selectedImages).map(filename =>
-        fetch(`/admin/images/${encodeURIComponent(filename)}`, {
+        fetch(`/api/admin/images/${encodeURIComponent(filename)}`, {
           method: 'DELETE',
           credentials: 'include'
         })
