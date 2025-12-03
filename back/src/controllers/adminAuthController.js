@@ -23,18 +23,17 @@ async function login(req, res) {
 
   const token = jwt.sign({ username: ADMIN_USER, role: 'admin' }, SECRET, { expiresIn: '8h' });
   // set httpOnly cookie
-  // For cross-origin: use SameSite=None only if HTTPS is available, otherwise use Lax
   const cookieOptions = { 
     httpOnly: true,
-    maxAge: 8 * 60 * 60 * 1000 // 8 hours in milliseconds
+    maxAge: 8 * 60 * 60 * 1000, // 8 hours in milliseconds
+    sameSite: 'lax' // Use 'lax' for same-site requests, works without HTTPS
   };
   
-  // Only use SameSite=None with Secure in production with HTTPS
-  // For local development, omit SameSite to allow cross-origin
-  if (process.env.NODE_ENV === 'production') {
-    cookieOptions.sameSite = 'none';
-    cookieOptions.secure = true;
-  }
+  // TODO: When HTTPS is available, use sameSite: 'none' and secure: true
+  // if (process.env.HTTPS_ENABLED === 'true') {
+  //   cookieOptions.sameSite = 'none';
+  //   cookieOptions.secure = true;
+  // }
   
   res.cookie('token', token, cookieOptions);
   res.json({ ok: true, user: { username: ADMIN_USER } });
@@ -47,12 +46,10 @@ function me(req, res) {
 }
 
 function logout(req, res) {
-  const cookieOptions = { httpOnly: true };
-  if (process.env.NODE_ENV === 'production') {
-    cookieOptions.sameSite = 'none';
-    cookieOptions.secure = true;
-  }
-  res.clearCookie('token', cookieOptions);
+  res.clearCookie('token', { 
+    httpOnly: true,
+    sameSite: 'lax'
+  });
   res.json({ ok: true });
 }
 
