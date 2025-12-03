@@ -1,0 +1,184 @@
+.graffiti-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.graffiti {
+  position: absolute;
+  font-weight: 700;
+  opacity: 0.18;
+  color: var(--accent-primary);
+  animation: graffitiFloat 4s ease-in-out infinite;
+  mix-blend-mode: screen;
+  text-shadow: 0 0 8px currentColor, 0 0 18px currentColor;
+}
+
+@keyframes graffitiFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(var(--rotation, 0deg));
+  }
+  50% {
+    transform: translateY(-10px) rotate(calc(var(--rotation, 0deg) + 5deg));
+  }
+}
+
+.graffiti-x1 {
+  top: 12%;
+  left: 8%;
+  font-size: 3rem;
+  --rotation: -15deg;
+  color: var(--accent-primary);
+  opacity: 0.22;
+  animation-delay: 0s;
+}
+
+.graffiti-x2 {
+  top: 18%;
+  left: 15%;
+  font-size: 2rem;
+  --rotation: 8deg;
+  color: var(--accent-secondary);
+  opacity: 0.18;
+  animation-delay: 0.5s;
+}
+
+.graffiti-circle1 {
+  top: 10%;
+  left: 20%;
+  font-size: 2.5rem;
+  --rotation: 0deg;
+  color: var(--accent-tertiary);
+  opacity: 0.14;
+  animation-delay: 1s;
+}
+
+.graffiti-star1 {
+  top: 35%;
+  left: 5%;
+  font-size: 4rem;
+  --rotation: -25deg;
+  color: var(--accent-secondary);
+  opacity: 0.22;
+  animation-delay: 1.5s;
+}
+
+.graffiti-star2 {
+  top: 45%;
+  right: 12%;
+  font-size: 3rem;
+  --rotation: 18deg;
+  color: var(--accent-tertiary);
+  opacity: 0.18;
+  animation-delay: 2s;
+}
+
+.graffiti-x3 {
+  top: 25%;
+  right: 10%;
+  font-size: 3.5rem;
+  --rotation: 12deg;
+  color: var(--accent-primary);
+  opacity: 0.2;
+  animation-delay: 0.8s;
+}
+
+.graffiti-x4 {
+  top: 60%;
+  right: 18%;
+  font-size: 2.2rem;
+  --rotation: -10deg;
+  color: var(--accent-secondary);
+  opacity: 0.16;
+  animation-delay: 2.5s;
+}
+
+.graffiti-circle2 {
+  top: 55%;
+  right: 8%;
+  font-size: 2.8rem;
+  --rotation: 5deg;
+  color: var(--accent-tertiary);
+  opacity: 0.15;
+  animation-delay: 1.2s;
+}
+
+.graffiti-diamond {
+  bottom: 25%;
+  left: 12%;
+  font-size: 3rem;
+  --rotation: 45deg;
+  color: var(--accent-subtle);
+  opacity: 0.16;
+  animation-delay: 3s;
+}
+
+.graffiti-x5 {
+  bottom: 15%;
+  left: 25%;
+  font-size: 2.5rem;
+  --rotation: -8deg;
+  color: var(--accent-primary);
+  opacity: 0.2;
+  animation-delay: 3.5s;
+}
+
+.graffiti-scribble1 {
+  top: 70%;
+  left: 40%;
+  font-size: 1.5rem;
+  --rotation: -5deg;
+  color: var(--accent-secondary);
+  opacity: 0.12;
+  letter-spacing: 0.3rem;
+  animation-delay: 2.8s;
+}
+
+.graffiti-scribble2 {
+  top: 28%;
+  left: 45%;
+  font-size: 1.8rem;
+  --rotation: 15deg;
+  color: var(--accent-tertiary);
+  opacity: 0.11;
+  letter-spacing: 0.2rem;
+  animation-delay: 1.8s;
+}
+
+.graffiti-cluster1 {
+  bottom: 35%;
+  right: 15%;
+  font-size: 2rem;
+  --rotation: 12deg;
+  color: var(--accent-secondary);
+  opacity: 0.16;
+  letter-spacing: 1.5rem;
+  animation-delay: 4s;
+}
+
+.graffiti-cluster2 {
+  top: 50%;
+  left: 30%;
+  font-size: 2.5rem;
+  --rotation: -18deg;
+  color: var(--accent-primary);
+  opacity: 0.15;
+  letter-spacing: 1rem;
+  animation-delay: 3.2s;
+}
+
+@media (max-width: 768px) {
+  .graffiti {
+    font-size: 0.8em;
+  }
+  
+  .graffiti-cluster1,
+  .graffiti-cluster2 {
+    letter-spacing: 0.8rem;
+  }
+}
