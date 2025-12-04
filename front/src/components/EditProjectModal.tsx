@@ -117,16 +117,15 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
 
   async function setPrimaryImage(filename: string) {
     try {
-      const res = await fetch(`/admin/images/${encodeURIComponent(filename)}`, {
+      const res = await apiFetch(`/admin/images/${encodeURIComponent(filename)}`, {
         method: 'PUT',
-        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project: projectKey, isPrimary: true })
+        body: JSON.stringify({ project: projectKey, isPrimary: true, deleteOthers: false })
       });
       
       if (res.ok) {
         // Refresh images
-        const imgRes = await fetch('/admin/images', { credentials: 'include' });
+        const imgRes = await apiFetch('/admin/images');
         if (imgRes.ok) {
           const b = await imgRes.json();
           const images = b.images || [];
