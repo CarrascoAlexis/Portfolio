@@ -47,7 +47,7 @@ export default function CreateProject() {
 
     setBusy(true);
     try {
-      const res = await fetch('/api/admin/projects/manual', {
+      const res = await apiFetch('/admin/projects/manual', {
         method: 'POST', 
         credentials: 'include', 
         headers: { 'Content-Type': 'application/json' },

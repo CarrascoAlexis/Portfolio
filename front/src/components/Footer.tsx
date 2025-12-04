@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiFetch } from '../config/api';
 import './Footer.css';
 
 interface FooterProps {
@@ -35,7 +36,7 @@ export default function Footer({ onGameToggle }: FooterProps) {
     setErrorMessage('');
 
     try {
-      const response = await fetch('/contact', {
+      const response = await apiFetch('/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

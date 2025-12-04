@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import './Portfolio.css';
 import ImageCarousel from '../components/ImageCarousel';
+import { apiFetch } from '../config/api';
 
 export default function Project() {
   const { name } = useParams();
@@ -28,7 +29,7 @@ export default function Project() {
       setError(null);
       try {
         // fetch all projects and find by name (owner resolution removed from URL)
-        const res = await fetch(`/projects`);
+        const res = await apiFetch(`/projects`);
         if (!res.ok) throw new Error(`API error ${res.status}`);
         const body = await res.json();
         const found = (body.projects || []).find((p: any) => {
@@ -46,7 +47,7 @@ export default function Project() {
         // load images from backend API (if we have full_name, prefer it)
         try {
           const projId = found.full_name || (found.owner && `${found.owner.login}/${found.name}`) || `${found.name}`;
-          const imgRes = await fetch(`/images?project=${encodeURIComponent(projId)}`);
+          const imgRes = await apiFetch(`/images?project=${encodeURIComponent(projId)}`);
           if (imgRes.ok) {
             const imgBody = await imgRes.json();
             setImages(imgBody.images || []);

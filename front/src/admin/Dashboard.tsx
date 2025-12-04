@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { apiFetch } from '../config/api';
 import './Dashboard.css';
 
 type Project = any;
@@ -22,14 +23,14 @@ export default function AdminDashboard() {
       setLoading(true);
       try {
         // Charger projets
-        const res = await fetch('/api/projects');
+        const res = await apiFetch('/projects');
         if (res.ok) {
           const b = await res.json();
           setProjects(b.projects || []);
         }
 
         // Charger visibilité
-        const vis = await fetch('/api/projects/visibility');
+        const vis = await apiFetch('/projects/visibility');
         if (vis.ok) {
           const bv = await vis.json();
           setVisMap(bv.visibility || {});

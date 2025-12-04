@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../config/api';
 import './EditProjectModal.css';
 
 type EditProjectModalProps = {
@@ -31,7 +32,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
     // Load all images and filter those linked to this project
     (async () => {
       try {
-        const res = await fetch('/admin/images', { credentials: 'include' });
+        const res = await apiFetch('/admin/images');
         if (res.ok) {
           const b = await res.json();
           const images = b.images || [];
@@ -50,7 +51,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
     // Load all existing tags from all projects
     (async () => {
       try {
-        const res = await fetch('/projects');
+        const res = await apiFetch('/projects');
         if (res.ok) {
           const b = await res.json();
           const projects = b.projects || [];
@@ -92,7 +93,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
 
   async function unlinkImage(filename: string) {
     try {
-      const res = await fetch(`/admin/images/${encodeURIComponent(filename)}`, {
+        const res = await apiFetch(`/admin/images/${encodeURIComponent(filename)}`, {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -142,7 +143,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
     setBusy(true);
     try {
       // Save visibility
-      const visRes = await fetch('/admin/visibility', {
+      const visRes = await apiFetch('/admin/visibility', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -156,7 +157,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
       }
 
       // Save tags (for both GitHub and manual projects)
-      const tagsRes = await fetch('/admin/tags', {
+      const tagsRes = await apiFetch('/admin/tags', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -171,7 +172,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
 
       // For manual projects, update name and description
       if (!isGithub) {
-        const updateRes = await fetch(`/admin/projects/manual/${project.id}`, {
+        const updateRes = await apiFetch(`/admin/projects/manual/${project.id}`, {
           method: 'PUT',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
@@ -185,7 +186,7 @@ export default function EditProjectModal({ project, visMap, onClose, onSave, onD
         }
       } else {
         // For GitHub projects, save description and technologies as metadata
-        const metadataRes = await fetch('/admin/projects/github/metadata', {
+        const metadataRes = await apiFetch('/admin/projects/github/metadata', {
           method: 'POST',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },

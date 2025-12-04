@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import EditProjectModal from '../components/EditProjectModal';
+import { apiFetch } from '../config/api';
 import './ProjectsAdmin.css';
 
 type Project = any;
@@ -22,15 +23,15 @@ export default function AdminProjects() {
     setLoading(true);
     try {
       // GitHub projects (public)
-      const gh = await fetch('/api/projects');
+      const gh = await apiFetch('/projects');
       const ghList = gh.ok ? ((await gh.json()).projects || []).map((p: any) => ({ ...p, _source: 'github' })) : [];
 
       // manual projects (admin)
-      const manual = await fetch('/api/admin/projects/manual', { credentials: 'include' });
+      const manual = await apiFetch('/admin/projects/manual');
       const manualList = manual.ok ? ((await manual.json()).projects || []).map((p: any) => ({ ...p, _source: 'manual' })) : [];
 
       // load visibilities
-      const vis = await fetch('/api/projects/visibility');
+      const vis = await apiFetch('/projects/visibility');
       if (vis.ok) {
         const bv = await vis.json();
         setVisMap(bv.visibility || {});
@@ -64,9 +65,8 @@ export default function AdminProjects() {
   async function handleDelete(id: string) {
     if (!confirm('Supprimer ce projet manuel ?')) return;
     try {
-      const res = await fetch(`/api/admin/projects/manual/${id}`, { 
-        method: 'DELETE', 
-        credentials: 'include' 
+      const res = await apiFetch(`/admin/projects/manual/${id}`, { 
+        method: 'DELETE'
       });
       if (res.ok) { 
         await loadAll();

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiFetch } from '../config/api';
 import './EditImageModal.css';
 
 type EditImageModalProps = {
@@ -19,9 +20,8 @@ export default function EditImageModal({ image, projects, onClose, onSave, onDel
     setBusy(true);
     try {
       // Update image metadata (project link and primary status)
-      const res = await fetch(`/admin/images/${encodeURIComponent(image.filename)}`, {
+        const res = await apiFetch(`/admin/images/${encodeURIComponent(image.filename)}`, {, {
         method: 'PUT',
-        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           project: project || null, 

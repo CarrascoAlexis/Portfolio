@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Portfolio.css';
-import { API_BASE, API_URL } from '../config/api';
+import { API_BASE, apiFetch } from '../config/api';
 
 export default function Portfolio() {
   const [selectedTag, setSelectedTag] = useState<string>('all');
@@ -22,8 +22,8 @@ export default function Portfolio() {
       try {
         // load only visible projects (combined GitHub + manual) from API
         const [projectsRes, imagesRes] = await Promise.all([
-          fetch(`${API_BASE}/projects?visible=1`),
-          fetch(`${API_BASE}/images`)
+          apiFetch(`/projects?visible=1`),
+          apiFetch(`/images`)
         ]);
 
         if (!projectsRes.ok) throw new Error(`API error ${projectsRes.status}`);

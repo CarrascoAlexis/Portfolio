@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import EditImageModal from '../components/EditImageModal';
+import { apiFetch } from '../config/api';
 import './ImagesAdmin.css';
 
 export default function AdminImages() {
@@ -24,9 +25,9 @@ export default function AdminImages() {
   async function load() {
     setLoading(true);
     try {
-      const [imgRes, projRes] = await Promise.all([
-        fetch('/api/admin/images', { credentials: 'include' }),
-        fetch('/api/projects')
+      const [imagesRes, projRes] = await Promise.all([
+        apiFetch('/admin/images'),
+        apiFetch('/projects')
       ]);
 
       if (imgRes.ok) {
@@ -92,7 +93,7 @@ export default function AdminImages() {
   async function handleDelete(filename: string) {
     if (!confirm('Supprimer cette image ?')) return;
     try {
-      const res = await fetch(`/api/admin/images/${encodeURIComponent(filename)}`, { 
+      const res = await apiFetch(`/admin/images/${encodeURIComponent(filename)}`, { 
         method: 'DELETE', 
         credentials: 'include' 
       });

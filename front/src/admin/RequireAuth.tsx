@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { apiFetch } from '../config/api';
 
 export default function RequireAuth({ children }: PropsWithChildren) {
   const [ok, setOk] = useState<boolean | null>(null);
@@ -10,7 +11,7 @@ export default function RequireAuth({ children }: PropsWithChildren) {
     let cancelled = false;
     async function me() {
       try {
-        const res = await fetch('/api/admin/me', { credentials: 'include' });
+        const res = await apiFetch('/admin/me');
         if (!res.ok) {
           if (!cancelled) setOk(false);
           return;
