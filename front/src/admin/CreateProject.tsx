@@ -7,36 +7,12 @@ export default function CreateProject() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
-  const [images, setImages] = useState<string[]>([]);
-  const [gallery, setGallery] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     document.title = 'Créer un Projet - Alexis Carrasco';
   }, []);
-
-  useEffect(() => {
-    // load images from gallery
-    (async () => {
-      setLoading(true);
-      try {
-        const res = await apiFetch('/images');
-        if (!res.ok) return;
-        const b = await res.json();
-        setGallery(b.images || []);
-      } catch (e) {
-        console.error('failed to load gallery', e);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
-
-  function toggleImage(img: string) {
-    setImages((prev) => prev.includes(img) ? prev.filter(i => i !== img) : [...prev, img]);
-  }
 
   async function submit(e?: any) {
     if (e && e.preventDefault) e.preventDefault();
@@ -50,13 +26,11 @@ export default function CreateProject() {
     try {
       const res = await apiFetch('/admin/projects/manual', {
         method: 'POST', 
-        credentials: 'include', 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           title: name, 
           description, 
-          url: url || undefined,
-          images 
+          url: url || undefined
         })
       });
       if (!res.ok) {
@@ -131,45 +105,6 @@ export default function CreateProject() {
               disabled={busy}
             />
           </div>
-        </div>
-
-        <div className="form-section">
-          <h2 className="section-title">Galerie d'images</h2>
-          <p className="section-description">
-            Sélectionnez les images à associer à ce projet. {images.length > 0 && `${images.length} image(s) sélectionnée(s).`}
-          </p>
-
-          {loading && <div className="loading-state">Chargement des images…</div>}
-
-          {!loading && gallery.length === 0 && (
-            <div className="empty-state">
-              <p>Aucune image disponible.</p>
-              <Link to="/admin/images"><button type="button" className="btn btn-secondary">Gérer les images</button></Link>
-            </div>
-          )}
-
-          {!loading && gallery.length > 0 && (
-            <div className="gallery-grid">
-              {gallery.map((img: any) => {
-                const src = typeof img === 'string' ? img : (img.url || img.path || (img.filename ? `/uploads/${img.filename}` : ''));
-                const label = typeof img === 'string' ? img.split('/').pop() : (img.originalname || img.filename || (src ? src.split('/').pop() : 'image'));
-                const selected = src && images.includes(src);
-                return (
-                  <div 
-                    key={src || label} 
-                    className={`gallery-item ${selected ? 'selected' : ''}`}
-                    onClick={() => toggleImage(src)}
-                  >
-                    <div className="gallery-image">
-                      <img src={src} alt={label} />
-                      {selected && <div className="selected-badge">✓</div>}
-                    </div>
-                    <div className="gallery-label">{label}</div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
         </div>
 
         <div className="form-actions">
