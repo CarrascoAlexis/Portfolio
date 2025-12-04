@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { apiFetch } from '../config/api';
 import './CreateProject.css';
 
 export default function CreateProject() {
@@ -21,7 +22,7 @@ export default function CreateProject() {
     (async () => {
       setLoading(true);
       try {
-        const res = await fetch('/api/images');
+        const res = await apiFetch('/images');
         if (!res.ok) return;
         const b = await res.json();
         setGallery(b.images || []);

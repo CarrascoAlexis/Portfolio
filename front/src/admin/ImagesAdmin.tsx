@@ -30,8 +30,8 @@ export default function AdminImages() {
         apiFetch('/projects')
       ]);
 
-      if (imgRes.ok) {
-        const b = await imgRes.json();
+      if (imagesRes.ok) {
+        const b = await imagesRes.json();
         setImages(b.images || []);
       }
 

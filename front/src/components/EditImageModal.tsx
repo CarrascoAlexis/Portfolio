@@ -20,7 +20,7 @@ export default function EditImageModal({ image, projects, onClose, onSave, onDel
     setBusy(true);
     try {
       // Update image metadata (project link and primary status)
-      const res = await apiFetch(`/admin/images/${encodeURIComponent(image.filename)}`, {
+        const res = await apiFetch(`/admin/images/${encodeURIComponent(image.filename)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
