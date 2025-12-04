@@ -253,11 +253,21 @@ module.exports = {
         const found = items.find(i => i.filename === filename);
         if (found) {
           Object.assign(found, updates);
-          // remove from old location
+          // Recreate the entire list with updated item
           await redisClient.del(k);
-          // re-add to correct location if project changed
-          const newKey = `images:${updates.project || 'global'}`;
-          await redisClient.lpush(newKey, JSON.stringify(found));
+          for (const item of items) {
+            await redisClient.lpush(k, JSON.stringify(item));
+          }
+          // If project changed, also move to the new key
+          if (updates.project !== undefined && updates.project !== null) {
+            const newKey = `images:${updates.project}`;
+            if (k !== newKey) {
+              // Remove from old key
+              await redisClient.lpop(k);
+              // Add to new key
+              await redisClient.lpush(newKey, JSON.stringify(found));
+            }
+          }
         }
       }
       return true;
