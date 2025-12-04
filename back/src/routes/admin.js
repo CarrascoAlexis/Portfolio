@@ -63,6 +63,7 @@ router.put('/images/:filename', requireAdmin, async (req, res) => {
   try {
     const filename = req.params.filename;
     const { project, isPrimary, deleteOthers } = req.body || {};
+    console.log(`[PUT /images/${filename}] project=${project}, isPrimary=${isPrimary}, deleteOthers=${deleteOthers}`);
     const updates = { project: project || null };
     if (isPrimary !== undefined) {
       updates.isPrimary = !!isPrimary;
@@ -72,10 +73,12 @@ router.put('/images/:filename', requireAdmin, async (req, res) => {
         
         // If deleteOthers flag is set, delete all other images for this project
         if (deleteOthers) {
+          console.log(`[DELETE-OTHER-IMAGES] Deleting other images for project ${project}`);
           const allImages = await storage.getAllImages();
           const otherImages = allImages.filter(img => 
             img.project === project && img.filename !== filename
           );
+          console.log(`[DELETE-OTHER-IMAGES] Found ${otherImages.length} images to delete:`, otherImages.map(i => i.filename));
           
           const uploads = path.join(__dirname, '..', '..', 'uploads');
           for (const img of otherImages) {
